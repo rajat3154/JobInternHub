@@ -1,18 +1,19 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import './App.css'
 import { Button } from './components/ui/button'
-
+import Signup from "./components/auth/Signup";
+const appRouter = createBrowserRouter([
+  {
+    path: "/",
+    element: <Signup />,
+  },
+]);
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
     <>
-    <Button>Hello</Button>
-    <p className='text-red-500'>JobInternHub</p>
+      <RouterProvider router={appRouter} />
     </>
-  )
+  );
 }
-
-export default App
+export default App;
