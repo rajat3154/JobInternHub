@@ -1,0 +1,93 @@
+// import React from "react";
+// import { Badge } from "./ui/badge";
+// // import { useNavigate } from "react-router-dom";
+// import { Avatar, AvatarImage } from "./ui/avatar";
+
+// const LatestJobCards = ({ job }) => {
+// //   const navigate = useNavigate();
+
+//   return (
+//     <div
+//       onClick={() => navigate(`/description/${job._id}`)}
+//       className="p-6 rounded-lg shadow-lg bg-black text-white border border-blue-500 hover:bg-gray-800 cursor-pointer transition duration-300"
+//     >
+//       {/* Company Info */}
+//       <div className="flex items-center gap-3 mb-4">
+//         <Avatar className="w-10 h-10">
+//           <AvatarImage
+//             src={job?.company?.logo || "/default-logo.png"}
+//             alt={job?.company?.name}
+//           />
+//         </Avatar>
+//         <div>
+//           <h1 className="font-semibold text-lg">{job?.company?.name}</h1>
+//           <p className="text-sm text-gray-400">India</p>
+//         </div>
+//       </div>
+
+//       {/* Job Title & Description */}
+//       <div>
+//         <h1 className="font-bold text-xl mb-4 text-blue-500">{job?.title}</h1>
+//         <p className="text-sm text-gray-300 line-clamp-3">{job?.description}</p>
+//       </div>
+
+//       {/* Job Details */}
+//       <div className="flex items-center gap-3 mt-7 flex-wrap">
+//         <Badge className="text-black font-bold bg-blue-400 border-blue-400">
+//           {job?.position} Positions
+//         </Badge>
+//         <Badge className="text-white font-bold bg-red-600 border-[#F83002]">
+//           {job?.jobType}
+//         </Badge>
+//         <Badge className="text-black font-bold bg-green-500 border-green-500">
+//           {job?.salary} LPA
+//         </Badge>
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default LatestJobCards;
+import React from "react";
+import { Badge } from "./ui/badge";
+import { Avatar, AvatarImage } from "./ui/avatar";
+
+const LatestJobCards = ({ job }) => {
+  return (
+    <div className="p-6 rounded-lg shadow-lg bg-black text-white border border-blue-500 hover:bg-gray-800 cursor-pointer transition duration-300">
+      {/* Company Info */}
+      <div className="flex items-center gap-3 mb-4">
+        <Avatar className="w-10 h-10">
+          <AvatarImage src="/default-logo.png" alt={job.company} />
+        </Avatar>
+        <div>
+          <h1 className="font-semibold text-lg">{job.company}</h1>
+          <p className="text-sm text-gray-400">{job.location}</p>
+        </div>
+      </div>
+
+      {/* Job Title & Description */}
+      <div>
+        <h1 className="font-bold text-xl mb-4 text-blue-500">{job.title}</h1>
+        <p className="text-sm text-gray-300 line-clamp-3">
+          Exciting opportunity at {job.company}. Join us as a {job.title}!
+        </p>
+      </div>
+
+      {/* Job Details */}
+      <div className="flex items-center gap-3 mt-7 flex-wrap">
+        <Badge className="text-black font-bold bg-blue-400 border-blue-400">
+          1 Position
+        </Badge>
+        <Badge className="text-white font-bold bg-red-600 border-[#F83002]">
+          Full-time
+        </Badge>
+        <Badge className="text-black font-bold bg-green-500 border-green-500">
+          {job.salary}
+        </Badge>
+      </div>
+    </div>
+  );
+};
+
+export default LatestJobCards;

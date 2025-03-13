@@ -42,13 +42,13 @@ const Navbar = () => {
             <Link to="/login">
               <Button
                 variant="outline"
-                className="border-white text-gray-300 px-6 py-2  hover:bg-gray-800 hover:text-white transition-all transform hover:scale-105 shadow-md"
+                className="border-white text-gray-300 px-6 py-2  hover:bg-gray-800 hover:text-white transition-all transform hover:scale-105 shadow-md cursor-pointer"
               >
                 Login
               </Button>
             </Link>
             <Link to="/signup">
-              <Button className="bg-blue-600 px-6 py-2  text-white font-semibold hover:from-blue-700 hover:to-blue-900 transition-all transform hover:scale-105 shadow-lg">
+              <Button className="bg-blue-600 px-6 py-2  text-white font-semibold hover:from-blue-700 hover:to-blue-900 transition-all transform hover:scale-105 shadow-lg cursor-pointer">
                 Signup
               </Button>
             </Link>
