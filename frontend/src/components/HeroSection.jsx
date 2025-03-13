@@ -1,20 +1,9 @@
 import React, { useState } from "react";
 import { Button } from "./ui/button";
 import { Search } from "lucide-react";
-import { useDispatch } from "react-redux";
-// import { setSearchedQuer } from "@/redux/jobSlice";
-import { useNavigate } from "react-router-dom";
+
 
 const HeroSection = () => {
-//   const [query, setQuery] = useState("");
-//   const dispatch = useDispatch();
-//   const navigate = useNavigate();
-
-//   const searchJobHandler = () => {
-//     dispatch(setSearchedQuery(query));
-//     navigate("/browse");
-//   };
-
   return (
     <div className="bg-black text-white py-20">
       {/* Container */}
@@ -47,7 +36,6 @@ const HeroSection = () => {
 
           {/* Search Button */}
           <Button
-            // onClick={searchJobHandler}
             className="rounded-r-full bg-blue-500 text-white hover:bg-[#5a2a94] py-3 px-8"
           >
             <Search className="h-5 w-5" />

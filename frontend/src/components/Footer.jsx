@@ -16,7 +16,7 @@ const Footer = () => {
           </p>
         </div>
 
-        {/* Quick Links */}
+        {/* Navigation Links */}
         <div>
           <h2 className="text-lg font-semibold mb-4">Quick Links</h2>
           <ul className="space-y-3 text-sm text-gray-400">
@@ -57,53 +57,61 @@ const Footer = () => {
           </ul>
         </div>
 
-        {/* Contact Form */}
+        {/* Contact Information */}
         <div>
           <h2 className="text-lg font-semibold mb-4">Contact Us</h2>
-          <form className="flex flex-col space-y-3">
-            <input
-              type="text"
-              placeholder="Your Name"
-              className="w-full px-4 py-2 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <input
-              type="email"
-              placeholder="Your Email"
-              className="w-full px-4 py-2 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <textarea
-              rows="3"
-              placeholder="Your Message"
-              className="w-full px-4 py-2 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
-            ></textarea>
-            <button
-              type="submit"
-              className="bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-md font-semibold transition"
+          <p className="text-sm text-gray-400">
+            Email:{" "}
+            <a
+              href="mailto:support@jobconnect.com"
+              className="hover:text-blue-400 transition-colors"
             >
-              Send Message
-            </button>
-          </form>
+              support@jobconnect.com
+            </a>
+          </p>
+          <p className="text-sm text-gray-400">Phone: +1 (123) 456-7890</p>
+          <p className="text-sm text-gray-400">
+            Address: 123 JobConnect Lane, NY, USA
+          </p>
         </div>
 
-        {/* Newsletter Subscription Form */}
+        {/* Social Media Links */}
         <div>
-          <h2 className="text-lg font-semibold mb-4">Stay Updated</h2>
-          <p className="text-sm text-gray-400 mb-3">
-            Subscribe to our newsletter for job updates.
-          </p>
-          <form className="flex flex-col space-y-3">
-            <input
-              type="email"
-              placeholder="Enter your email"
-              className="w-full px-4 py-2 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <button
-              type="submit"
-              className="bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-md font-semibold transition"
+          <h2 className="text-lg font-semibold mb-4">Follow Us</h2>
+          <div className="flex space-x-4">
+            <a
+              href="https://facebook.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-blue-500 transition-colors"
             >
-              Subscribe
-            </button>
-          </form>
+              <i className="fab fa-facebook-f"></i> Facebook
+            </a>
+            <a
+              href="https://twitter.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-blue-400 transition-colors"
+            >
+              <i className="fab fa-twitter"></i> Twitter
+            </a>
+            <a
+              href="https://linkedin.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-blue-700 transition-colors"
+            >
+              <i className="fab fa-linkedin"></i> LinkedIn
+            </a>
+            <a
+              href="https://instagram.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-pink-500 transition-colors"
+            >
+              <i className="fab fa-instagram"></i> Instagram
+            </a>
+          </div>
         </div>
       </div>
 
@@ -111,7 +119,7 @@ const Footer = () => {
       <div className="bg-gray-800 mt-8 py-4 text-center text-sm text-gray-400">
         <p>
           &copy; {new Date().getFullYear()}{" "}
-          <span className="font-bold text-white">JobConnect</span>. All rights
+          <span className="font-bold text-white ">JobConnect</span>. All rights
           reserved.
         </p>
       </div>

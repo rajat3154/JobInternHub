@@ -1,10 +1,12 @@
-import { useState } from 'react'
+
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import './App.css'
-import { Button } from './components/ui/button'
 import Signup from "./components/auth/Signup";
 import Home from './components/Home';
 import Login from './components/auth/Login';
+import Profile from './components/Profile';
+import Jobs from './components/Jobs';
+import Internships from './components/Internships';
 const appRouter = createBrowserRouter([
   {
     path: "/",
@@ -17,6 +19,18 @@ const appRouter = createBrowserRouter([
   {
     path: "/login",
     element: <Login />,
+  },
+  {
+    path: "/profile",
+    element: <Profile />,
+  },
+  {
+    path: "/jobs",
+    element: <Jobs />
+  },
+  {
+    path: "/internships",
+    element: <Internships />
   },
 ]);
 function App() {
