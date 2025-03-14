@@ -10,9 +10,9 @@ const Navbar = () => {
   let user = false;
   return (
     <div className="bg-black bg-opacity-90 backdrop-blur-lg shadow-lg border-b border-gray-800">
-      <div className="flex items-center justify-between mx-auto max-w-7xl h-14 px-6">
+      <div className="flex items-center justify-between mx-auto max-w-7xl h-16 px-6">
         <div>
-          <h1 className="text-white text-2xl font-extrabold tracking-wide">
+          <h1 className="text-white text-3xl font-extrabold tracking-wide">
             JobIntern<span className="text-blue-500">Hub</span>
           </h1>
         </div>

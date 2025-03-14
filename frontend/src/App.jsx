@@ -7,6 +7,9 @@ import Login from './components/auth/Login';
 import Profile from './components/Profile';
 import Jobs from './components/Jobs';
 import Internships from './components/Internships';
+import StudentSignup from "./components/StudentSignup";
+import RecruiterSignup from "./components/RecruiterSignup";
+
 const appRouter = createBrowserRouter([
   {
     path: "/",
@@ -24,13 +27,22 @@ const appRouter = createBrowserRouter([
     path: "/profile",
     element: <Profile />,
   },
+
   {
     path: "/jobs",
-    element: <Jobs />
+    element: <Jobs />,
   },
   {
     path: "/internships",
-    element: <Internships />
+    element: <Internships />,
+  },
+  {
+    path: "/student/signup",
+    element: <StudentSignup />,
+  },
+  {
+    path: "/recruiter/signup",
+    element: <RecruiterSignup />,
   },
 ]);
 function App() {

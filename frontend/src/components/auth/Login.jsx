@@ -55,7 +55,6 @@ const Login = () => {
     }
   };
 
-  // Inline styles for the floating animation and shaded corner border
   const formStyle = {
     position: "relative",
     borderRadius: "10px",
@@ -71,7 +70,7 @@ const Login = () => {
     right: "-2px",
     bottom: "-2px",
     borderRadius: "10px",
-    border: "2px solid #3182ce", // Blue border color
+    border: "2px solid #3182ce",
     zIndex: -1,
   };
 

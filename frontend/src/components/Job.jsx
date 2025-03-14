@@ -13,7 +13,12 @@ const Job = ({ job }) => {
   };
 
   return (
-    <div className="bg-black text-white p-6 rounded-lg shadow-lg border border-gray-800 hover:border-blue-500 hover:shadow-xl transition-all duration-300">
+    <div className="relative bg-black text-white p-6 rounded-lg shadow-lg border border-gray-800 hover:border-blue-500 hover:shadow-xl transition-all duration-300">
+      {/* Apply Now Button */}
+      <button className="absolute top-4 right-4 text-white bg-blue-600 border-blue-600 hover:bg-blue-700 transition duration-300 ease-in-out px-4 py-2 rounded-md">
+        Apply Now
+      </button>
+
       {/* Top Section */}
       <div className="flex items-center justify-between mb-4">
         <p className="text-sm text-gray-400">

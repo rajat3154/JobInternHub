@@ -2,9 +2,20 @@ import React from "react";
 import { Badge } from "./ui/badge";
 import { Avatar, AvatarImage } from "./ui/avatar";
 import profilePic from "./assets/a.jpg";
+import { Button } from "./ui/button"; 
+
 const LatestJobCards = ({ job }) => {
   return (
-    <div className="p-6 rounded-lg shadow-lg bg-black text-white border border-blue-500 hover:bg-gray-800 cursor-pointer transition duration-300">
+    <div className="relative p-6 rounded-lg shadow-lg bg-black text-white border border-blue-500 hover:bg-gray-800 cursor-pointer transition duration-300">
+      {/* Apply Now Button */}
+      <Button
+        variant="outline"
+        size="sm"
+        className="absolute top-4 right-4 text-white bg-blue-600 border-blue-600 hover:bg-blue-700 transition duration-300 ease-in-out cursor-pointer"
+      >
+        Apply Now
+      </Button>
+
       {/* Company Info */}
       <div className="flex items-center gap-3 mb-4">
         <Avatar className="w-10 h-10">

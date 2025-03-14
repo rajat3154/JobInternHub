@@ -1,16 +1,6 @@
-// Full name
-// email
-// phone no
-// role
-// password
-// Fresher / Experienced
-// DOB
-// Gender
-// Location
-
 import mongoose from "mongoose"
-const userSchema=new mongoose.Schema({
-      fullname:{
+const recruiterSchema=new mongoose.Schema({
+      companyname:{
             type:String,
             required:true
       },
@@ -19,24 +9,26 @@ const userSchema=new mongoose.Schema({
             required:true,
             unique:true
       },
-      dateofbirth:{
-            type:Date,
+      cinnumber:{
+            type:Number,
             required:true
       },
-      password:{
+      companyaddress:{
+            type:String,
+            required:true
+      },
+      companystatus:{
             type:String,
             required:true
       },
       role:{
             type:String,
-            enum:['student','recruiter'],
-            required:true
+            default: "recruiter",
       },
-      status:{
+      password:{
             type:String,
-            enum:['fresher','experienced'],
             required:true
       }
 },{timestamps:true})
 
-export const User=mongoose.model('User',userSchema);
+export const Recruiter=mongoose.model('Recruiter',recruiterSchema);

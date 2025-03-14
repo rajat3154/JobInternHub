@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import LatestJobCards from "./LatestJobCards";
 
 const staticJobs = [
@@ -37,13 +38,6 @@ const staticJobs = [
     location: "Cupertino, CA",
     salary: "$90k - $110k",
   },
-  {
-    id: 6,
-    title: "Software Engineer",
-    company: "Microsoft",
-    location: "Redmond, WA",
-    salary: "$115k - $145k",
-  },
 ];
 
 const LatestJobs = () => {
@@ -53,7 +47,7 @@ const LatestJobs = () => {
       <div className="container mx-auto text-center px-4">
         {/* Title */}
         <h1 className="text-4xl font-bold mb-10">
-          <span className="text-blue-500">Latest and Top </span>Job Openings
+          <span className="text-blue-500 text-3xl">Latest and Top </span >Job Openings
         </h1>
 
         {/* Job Cards Grid */}
@@ -61,6 +55,24 @@ const LatestJobs = () => {
           {staticJobs.map((job) => (
             <LatestJobCards key={job.id} job={job} />
           ))}
+
+          {/* View More Button (6th Card) */}
+          <Link
+            to="/jobs"
+            className="p-6 rounded-lg shadow-lg bg-black text-white border border-blue-500 hover:bg-gray-800 cursor-pointer transition duration-300 flex flex-col items-center justify-center"
+          >
+            <h2 className="text-2xl font-bold text-blue-400">View More Jobs</h2>
+            <p className="mt-2 text-gray-300 text-lg">
+              Explore all job openings
+            </p>
+
+            {/* Circular Forward Button */}
+            <div className="mt-6 flex justify-center">
+              <button className="w-12 h-12 flex items-center justify-center rounded-full border border-blue-500 text-blue-400 text-2xl cursor-pointer hover:text-white transition duration-300">
+                ➡️
+              </button>
+            </div>
+          </Link>
         </div>
       </div>
     </div>

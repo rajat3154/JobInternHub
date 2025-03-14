@@ -9,10 +9,11 @@ const Footer = () => {
       <div className="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 px-6">
         {/* Branding Section */}
         <div>
-          <h1 className="text-2xl font-bold mb-4">AspireNext</h1>
+          <h1 className="text-2xl font-bold mb-4">JobInternHub</h1>
           <p className="text-sm text-gray-400 leading-relaxed">
             Your trusted platform to connect employers with skilled candidates.
-            Find your dream job or hire the right talent, all in one place.
+            Find your dream <b>job</b> or <b>internship</b> and kickstart your
+            career with the best opportunities.
           </p>
         </div>
 
@@ -28,6 +29,14 @@ const Footer = () => {
             <li>
               <a href="/jobs" className="hover:text-blue-400 transition-colors">
                 Find Jobs
+              </a>
+            </li>
+            <li>
+              <a
+                href="/internships"
+                className="hover:text-blue-400 transition-colors"
+              >
+                Find Internships
               </a>
             </li>
             <li>
@@ -63,15 +72,15 @@ const Footer = () => {
           <p className="text-sm text-gray-400">
             Email:{" "}
             <a
-              href="mailto:support@jobconnect.com"
+              href="mailto:support@jobinternhub.com"
               className="hover:text-blue-400 transition-colors"
             >
-              support@jobconnect.com
+             jobinternhub@gmail.com
             </a>
           </p>
-          <p className="text-sm text-gray-400">Phone: +1 (123) 456-7890</p>
+          <p className="text-sm text-gray-400">Phone: 98547 65478</p>
           <p className="text-sm text-gray-400">
-            Address: 123 JobConnect Lane, NY, USA
+            Address: 123 JobInternHub Lane, NY, USA
           </p>
         </div>
 
@@ -119,8 +128,8 @@ const Footer = () => {
       <div className="bg-gray-800 mt-8 py-4 text-center text-sm text-gray-400">
         <p>
           &copy; {new Date().getFullYear()}{" "}
-          <span className="font-bold text-white ">JobConnect</span>. All rights
-          reserved.
+          <span className="font-bold text-white ">JobInternHub</span>. All
+          rights reserved.
         </p>
       </div>
     </footer>

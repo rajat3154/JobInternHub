@@ -10,7 +10,7 @@ const HeroSection = () => {
       <div className="container mx-auto text-center px-4">
         {/* Tagline */}
         <span className="mx-auto px-5 py-3 rounded-full bg-white text-blue-500 font-medium mb-75 text-lg ">
-          No.1 Job Hub Website
+          No.1 JobInternHub Website
         </span>
 
         {/* Main Heading */}
