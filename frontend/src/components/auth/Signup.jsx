@@ -4,6 +4,56 @@ import { Button } from "../ui/button";
 import { Link } from "react-router-dom";
 
 const Signup = () => {
+<<<<<<< HEAD
+=======
+  const [input, setInput] = useState({
+    fullname: "",
+    email: "",
+    dateofbirth: "",
+    password: "",
+    role: "",
+    status: "",
+  });
+
+  const { loading } = useSelector((store) => store.auth);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const changeEventHandler = (e) => {
+    setInput({ ...input, [e.target.name]: e.target.value });
+  };
+
+  const submitHandler = async (e) => {
+    e.preventDefault();
+    const formData = new FormData();
+    formData.append("fullname", input.fullname);
+    formData.append("email", input.email);
+    formData.append("dateofbirth", input.dateofbirth);
+    formData.append("password", input.password);
+    formData.append("role", input.role);
+    formData.append("status", input.status);
+
+    try {
+      dispatch(setLoading(true));
+      const res = await axios.post(`${USER_API_END_POINT}/register`, formData, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      });
+
+           if (res.data.success) {
+              navigate("/login");
+             toast.success(res.data.message);
+           }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.response.data.message);
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
+
+>>>>>>> a7eaefad25d141f28c29bf6fa787de67953a72e1
   return (
     <>
       <Navbar />

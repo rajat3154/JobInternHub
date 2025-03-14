@@ -7,7 +7,7 @@ import { LogOut, User2 } from "lucide-react";
 import profilePic from "../assets/a.jpg";
 
 const Navbar = () => {
-  let user = false;
+  let user = true;
   return (
     <div className="bg-black bg-opacity-90 backdrop-blur-lg shadow-lg border-b border-gray-800">
       <div className="flex items-center justify-between mx-auto max-w-7xl h-16 px-6">
