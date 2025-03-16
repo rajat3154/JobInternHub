@@ -40,7 +40,7 @@ export const recregister = async (req, res) => {
             await newRecruiter.save();
 
             res.status(201).json({
-                  message: "Recruiter registered successfully",
+                  message: "Request sent to admin successfully",
                   success: true,
             });
 

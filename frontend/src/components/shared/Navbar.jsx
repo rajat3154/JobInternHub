@@ -13,6 +13,7 @@ import { setUser } from "@/redux/authSlice";
 
 
 const Navbar = () => {
+<<<<<<< HEAD
    const { user } = useSelector((store) => store.auth);
    const dispatch = useDispatch();
    const navigate = useNavigate();
@@ -34,6 +35,9 @@ const Navbar = () => {
      );
    }
  };
+=======
+  let user = false;
+>>>>>>> 1caa1c9a6f2d8468dbd89acf7d39f806ec6982c0
   return (
     <div className="bg-black bg-opacity-90 backdrop-blur-lg shadow-lg border-b border-gray-800">
       <div className="flex items-center justify-between mx-auto max-w-8xl h-20 px-6">
