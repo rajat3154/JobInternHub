@@ -2,6 +2,7 @@ import React from "react";
 import Navbar from "./shared/Navbar";
 import profilePic from "./assets/a.jpg";
 import FilterCard from "./FilterCard";
+import { Button } from "./ui/button";
 
 const Jobs = () => {
    const filterJobs = [
@@ -148,7 +149,7 @@ const Jobs = () => {
                   className="relative p-6 rounded-lg shadow-lg bg-black text-white border border-blue-500 hover:bg-gray-800 cursor-pointer transition duration-300"
                 >
                   {/* Apply Now Button */}
-                  <button className="absolute top-4 right-4 text-white bg-blue-600 border-blue-600 hover:bg-blue-700 transition duration-300 ease-in-out px-4 py-2 rounded-md cursor-pointer">
+                  <button className="absolute top-3 right-4 text-white bg-green-500 border-green-500 hover:bg-green-600 transition duration-300 ease-in-out px-4 py-2 rounded-md cursor-pointer">
                     Apply Now
                   </button>
 
@@ -188,9 +189,20 @@ const Jobs = () => {
                     <span className="px-2 py-1 bg-red-600 text-white text-sm font-bold rounded-md">
                       {job.jobType}
                     </span>
-                    <span className="px-2 py-1 bg-green-500 text-black text-sm font-bold rounded-md">
+                    <span className="px-2 py-1 bg-yellow-400 text-black text-sm font-bold rounded-md">
                       {job.salary} LPA
                     </span>
+                  </div>
+                  <div className="flex items-center gap-2 mt-7">
+                    <Button
+                      variant="outline"
+                      className="px-2 py-1 bg-blue-500 border-blue-500 text-white text-sm font-bold rounded-md hover:bg-blue-600 cursor-pointer"
+                    >
+                      Details
+                    </Button>
+                    <Button className="px-2 py-1 bg-[#7209b7] text-white text-sm font-bold rounded-md hover:bg-purple-900 cursor-pointer">
+                      Save for later
+                    </Button>
                   </div>
                 </div>
               ))}

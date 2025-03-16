@@ -4,7 +4,7 @@ const LatestInternshipCards = ({ internship }) => {
   return (
     <div className="relative p-6 rounded-lg shadow-lg bg-black text-white border border-blue-500 hover:bg-gray-800 cursor-pointer transition duration-300 overflow-hidden">
       {/* Apply Now Button */}
-      <button className="absolute top-4 right-4 text-white bg-blue-600 border-blue-600 hover:bg-blue-700 transition duration-300 ease-in-out px-4 py-2 rounded-md cursor-pointer">
+      <button className="absolute top-3 right-4 text-white bg-green-600 border-green-600 hover:bg-green-700 transition duration-300 ease-in-out px-4 py-2 rounded-md cursor-pointer">
         Apply Now
       </button>
 
@@ -38,10 +38,10 @@ const LatestInternshipCards = ({ internship }) => {
 
       {/* Internship Tags (Duration, Stipend, and Type) */}
       <div className="flex flex-wrap gap-2 mt-3">
-        <span className="px-2 py-1 bg-blue-400 text-black text-sm font-bold rounded-md">
+        <span className="px-2 py-1 bg-orange-400 text-black text-sm font-bold rounded-md">
           {internship.duration}
         </span>
-        <span className="px-2 py-1 bg-green-500 text-black text-sm font-bold rounded-md">
+        <span className="px-2 py-1 bg-blue-500 text-black text-sm font-bold rounded-md">
           {internship.stipend}
         </span>
         {/* Internship Type Badge (Remote/In-office) */}

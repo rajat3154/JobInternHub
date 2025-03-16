@@ -63,7 +63,7 @@ const Job = ({ job }) => {
         <span className="px-2 py-1 bg-red-600 text-white text-sm font-bold rounded-md">
           {job?.jobType}
         </span>
-        <span className="px-2 py-1 bg-green-500 text-black text-sm font-bold rounded-md">
+        <span className="px-2 py-1 bg-yellow-400 text-black text-sm font-bold rounded-md">
           {job?.salary} LPA
         </span>
       </div>

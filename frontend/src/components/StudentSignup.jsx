@@ -20,6 +20,7 @@ const StudentSignup = () => {
     dateofbirth: "",
     password: "",
     status: "",
+    role: "student",
   });
 
   const { loading } = useSelector((store) => store.auth);
@@ -60,7 +61,7 @@ const StudentSignup = () => {
   };
   return (
     <>
-      <Navbar />
+      <Navbar/>
       <div className="flex items-center justify-center bg-black min-h-screen p-4">
         <form
           onSubmit={submitHandler}

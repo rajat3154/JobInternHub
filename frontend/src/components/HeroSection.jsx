@@ -3,6 +3,8 @@ import { Button } from "./ui/button";
 import { Search } from "lucide-react";
 
 
+
+
 const HeroSection = () => {
   return (
     <div className="bg-black text-white py-20">
@@ -35,9 +37,7 @@ const HeroSection = () => {
           />
 
           {/* Search Button */}
-          <Button
-            className="rounded-r-full bg-blue-500 text-white hover:bg-[#5a2a94] py-3 px-8"
-          >
+          <Button className="rounded-r-full bg-blue-500 text-white hover:bg-[#5a2a94] py-3 px-8">
             <Search className="h-5 w-5" />
           </Button>
         </div>

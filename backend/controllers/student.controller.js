@@ -5,42 +5,60 @@ import jwt from "jsonwebtoken"
 export const sregister = async (req, res) => {
       try {
             const { fullname, email, dateofbirth, password, role, status } = req.body;
-            if (!fullname || !email || !dateofbirth || !password || !status) {
+
+            // Validate required fields
+            if (!fullname || !email || !dateofbirth || !password || !status || !role) {
                   return res.status(400).json({
-                        message: "Something is missing",
+                        message: "All fields are required",
                         success: false
-                  })
-            }
-            const student = await Student.findOne({ email });
-            if (student) {
-                  return res.status(400).json({
-                        message: "Email already exists",
-                        success: false,
                   });
             }
+
+            // Ensure role is "student"
+            if (role !== "student") {
+                  return res.status(400).json({
+                        message: "Invalid role",
+                        success: false
+                  });
+            }
+
+            // Check if email already exists
+            const studentExists = await Student.findOne({ email });
+            if (studentExists) {
+                  return res.status(400).json({
+                        message: "Email already exists",
+                        success: false
+                  });
+            }
+
+            // Hash password
             const hashedPassword = await bcrypt.hash(password, 10);
 
+            // Create student
             await Student.create({
                   fullname,
                   email,
                   dateofbirth,
                   password: hashedPassword,
-                  role,
+                  role:'student',
                   status,
-            })
+            });
+
             res.status(201).json({
                   message: "Account created successfully",
                   success: true
-            })
+            });
+
       } catch (error) {
-            console.log("Error in register", error);
+            console.error("Error in register", error);
             return res.status(500).json({
                   message: "Internal server error",
                   success: false,
                   error: error.message,
-            })
+            });
       }
-}
+};
+
 
 export const login = async (req, res) => {
       try {
@@ -83,14 +101,28 @@ export const login = async (req, res) => {
                   expiresIn: "1d",
             });
 
-            const userResponse = {
-                  _id: user._id,
-                  fullname: user.fullname,
-                  email: user.email,
-                  birthdate: user.birthdate,
-                  role: user.role,
-                  status: user.status,
-            };
+            // Create response based on role
+            const userResponse = role === 'student'
+                  ? {
+                        _id: user._id,
+                        fullname: user.fullname,
+                        email: user.email,
+                        birthdate: user.birthdate,
+                        role: user.role,
+                        status: user.status,
+                  }
+                  : {
+                        _id: user._id,
+                        companyname: user.companyname,
+                        email: user.email,
+                        cinnumber: user.cinnumber,
+                        role: user.role,
+                        status: user.status,
+                  };
+
+            const welcomeMessage = role === 'student'
+                  ? `Welcome back ${user.fullname}`
+                  : `Welcome back ${user.companyname}`;
 
             return res
                   .status(200)
@@ -100,7 +132,7 @@ export const login = async (req, res) => {
                         sameSite: "strict",
                   })
                   .json({
-                        message: `Welcome back ${userResponse.fullname}`,
+                        message: welcomeMessage,
                         success: true,
                         user: userResponse,
                   });
@@ -111,5 +143,15 @@ export const login = async (req, res) => {
                   message: "Internal server error",
                   success: false,
             });
+      }
+};
+export const logout = async (req, res) => {
+      try {
+            return res.status(200).cookie("token", "", { maxAge: 0 }).json({
+                  message: "Logged out successfully",
+                  success: true,
+            });
+      } catch (error) {
+            console.log(error);
       }
 };
