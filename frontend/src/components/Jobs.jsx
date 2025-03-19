@@ -3,8 +3,11 @@ import Navbar from "./shared/Navbar";
 import profilePic from "./assets/a.jpg";
 import FilterCard from "./FilterCard";
 import { Button } from "./ui/button";
+import { useNavigate } from "react-router-dom";
 
 const Jobs = () => {
+   const navigate = useNavigate();
+
    const filterJobs = [
      {
        id: 1,
@@ -195,6 +198,7 @@ const Jobs = () => {
                   </div>
                   <div className="flex items-center gap-2 mt-7">
                     <Button
+                      onClick={() => navigate(`/jobdescription`)}
                       variant="outline"
                       className="px-2 py-1 bg-blue-500 border-blue-500 text-white text-sm font-bold rounded-md hover:bg-blue-600 cursor-pointer"
                     >

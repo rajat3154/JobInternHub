@@ -10,14 +10,14 @@ import { Input } from "./ui/input";
 import { RadioGroup } from "./ui/radio-group";
 import { Button } from "./ui/button";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Loader2, Phone } from "lucide-react";
 import { Calendar } from "./ui/calendar";
 
 const StudentSignup = () => {
   const [input, setInput] = useState({
     fullname: "",
     email: "",
-    dateofbirth: "",
+    phonenumber: "",
     password: "",
     status: "",
     role: "student",
@@ -35,7 +35,7 @@ const StudentSignup = () => {
     const formData = new FormData();
     formData.append("fullname", input.fullname);
     formData.append("email", input.email);
-    formData.append("dateofbirth", input.dateofbirth);
+    formData.append("phonenumber", input.phonenumber);
     formData.append("password", input.password);
     formData.append("role", input.role);
     formData.append("status", input.status);
@@ -61,7 +61,7 @@ const StudentSignup = () => {
   };
   return (
     <>
-      <Navbar/>
+      <Navbar />
       <div className="flex items-center justify-center bg-black min-h-screen p-4">
         <form
           onSubmit={submitHandler}
@@ -98,16 +98,16 @@ const StudentSignup = () => {
           </div>
 
           <div className="mb-4">
-            <Label className="text-sm font-semibold">Date of Birth</Label>
+            <Label className="text-sm font-semibold">Phone Number</Label>
             <Input
-              type="date"
-              value={input.dateofbirth}
-              name="dateofbirth"
+              type="text"
+              placeholder="Enter your phone number"
+              value={input.phonenumber}
+              name="phonenumber"
               onChange={changeEventHandler}
               required
-              className="mt-1 w-full p-3 bg-gray-900 text-white rounded-lg border border-blue-600"
+              className="mt-1 w-full p-3 bg-gray-900 text-white rounded-lg border border-blue-600 focus:ring-2 focus:ring-blue-500 focus:outline-none"
             />
-            <Calendar className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white" />
           </div>
 
           <div className="mb-4">

@@ -91,8 +91,6 @@ const Profile = () => {
             Rajat_Resume.pdf
           </a>
         </div>
-
-        
       </div>
 
       <div className="max-w-7xl mx-auto bg-black bg-opacity-90 rounded-lg shadow-lg p-4 my-2">
@@ -110,7 +108,7 @@ const Profile = () => {
             <h2 className="font-semibold text-xl text-blue-300 mb-3">
               All Applied Internships
             </h2>
-            <AppliedInternships/>
+            <AppliedInternships />
           </div>
         </div>
       </div>

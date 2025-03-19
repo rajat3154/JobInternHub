@@ -4,10 +4,10 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken"
 export const sregister = async (req, res) => {
       try {
-            const { fullname, email, dateofbirth, password, role, status } = req.body;
-
+            const { fullname, email, phonenumber, password, role, status } = req.body;
+            console.log(fullname,email,phonenumber,password,role,status);
             // Validate required fields
-            if (!fullname || !email || !dateofbirth || !password || !status || !role) {
+            if (!fullname || !email || !phonenumber || !password || !status || !role) {
                   return res.status(400).json({
                         message: "All fields are required",
                         success: false
@@ -38,7 +38,7 @@ export const sregister = async (req, res) => {
             await Student.create({
                   fullname,
                   email,
-                  dateofbirth,
+                  phonenumber,
                   password: hashedPassword,
                   role:'student',
                   status,
@@ -107,7 +107,7 @@ export const login = async (req, res) => {
                         _id: user._id,
                         fullname: user.fullname,
                         email: user.email,
-                        birthdate: user.birthdate,
+                        phonenumber: user.phonenumber,
                         role: user.role,
                         status: user.status,
                   }

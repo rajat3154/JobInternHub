@@ -3,8 +3,11 @@ import { Button } from "./ui/button";
 import { Bookmark } from "lucide-react";
 import { Avatar } from "@radix-ui/react-avatar";
 import { AvatarImage } from "./ui/avatar";
+import { useNavigate } from "react-router-dom";
+
 
 const Job = ({ job }) => {
+  const navigate = useNavigate();
   const daysAgoFunction = (mongodbTime) => {
     const createdAt = new Date(mongodbTime);
     const currentTime = new Date();
@@ -71,6 +74,7 @@ const Job = ({ job }) => {
       {/* Action Buttons */}
       <div className="flex items-center gap-2 mt-7">
         <Button
+          onClick={() => navigate(`/description`)}
           variant="outline"
           className="px-2 py-1 bg-blue-500 text-white text-sm font-bold rounded-md hover:bg-blue-600"
         >

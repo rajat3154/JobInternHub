@@ -1,5 +1,3 @@
-
-
 import mongoose from "mongoose"
 const studentSchema=new mongoose.Schema({
       fullname:{
@@ -11,8 +9,8 @@ const studentSchema=new mongoose.Schema({
             required:true,
             unique:true
       },
-      dateofbirth:{
-            type:Date,
+      phonenumber:{
+            type:Number,
             required:true
       },
       password:{
@@ -27,7 +25,8 @@ const studentSchema=new mongoose.Schema({
             type:String,
             enum:['fresher','experienced'],
             required:true
-      }
+      },
+      
 },{timestamps:true})
 
 export const Student = mongoose.model('Student', studentSchema);
