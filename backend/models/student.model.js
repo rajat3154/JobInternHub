@@ -26,7 +26,17 @@ const studentSchema=new mongoose.Schema({
             enum:['fresher','experienced'],
             required:true
       },
-      
+      profile: {
+            bio: { type: String },
+            skills: [{ type: String }],
+            resume: { type: String },
+            resumeOriginalName: { type: String },
+            company: { type: mongoose.Schema.Types.ObjectId, ref: 'Company' },
+            profilePhoto: {
+                  type: String,
+                  default: ""
+            }
+      },
 },{timestamps:true})
 
 export const Student = mongoose.model('Student', studentSchema);

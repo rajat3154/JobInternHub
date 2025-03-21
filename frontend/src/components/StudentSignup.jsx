@@ -21,6 +21,7 @@ const StudentSignup = () => {
     password: "",
     status: "",
     role: "student",
+    file: "",
   });
 
   const { loading } = useSelector((store) => store.auth);
@@ -29,9 +30,12 @@ const StudentSignup = () => {
   const changeEventHandler = (e) => {
     setInput({ ...input, [e.target.name]: e.target.value });
   };
-
+    const changeFileHandler = (e) => {
+      setInput({ ...input, file: e.target.files[0] });
+    };
   const submitHandler = async (e) => {
     e.preventDefault();
+
     const formData = new FormData();
     formData.append("fullname", input.fullname);
     formData.append("email", input.email);
@@ -40,25 +44,37 @@ const StudentSignup = () => {
     formData.append("role", input.role);
     formData.append("status", input.status);
 
+   if (input.file) {
+     formData.append("profile", input.file); // ✅ Match Multer field name
+   }
+
+
     try {
       dispatch(setLoading(true));
-      const res = await axios.post(`${STUDENT_API_END_POINT}/signup`, formData, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-        withCredentials: true,
-      });
+
+      const res = await axios.post(
+        `${STUDENT_API_END_POINT}/signup`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data", // ✅ Auto-sets boundaries
+          },
+          withCredentials: true,
+        }
+      );
+
       if (res.data.success) {
         navigate("/login");
         toast.success(res.data.message);
       }
     } catch (error) {
       console.log(error);
-      toast.error(error.response.data.message);
+      toast.error(error.response?.data?.message || "Signup failed");
     } finally {
       dispatch(setLoading(false));
     }
   };
+
   return (
     <>
       <Navbar />
@@ -149,6 +165,15 @@ const StudentSignup = () => {
                 <Label className="text-sm text-blue-300">Experienced</Label>
               </div>
             </RadioGroup>
+            <div className="flex items-center gap-4">
+              <Label className="text-sm font-semibold">Profile</Label>
+              <Input
+                accept="image/*"
+                type="file"
+                onChange={changeFileHandler}
+                className="cursor-pointer p-2 border border-blue-600 rounded-lg"
+              />
+            </div>
           </div>
 
           {loading ? (

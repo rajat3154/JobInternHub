@@ -5,7 +5,7 @@ import { Recruiter } from "../models/recruiter.model.js";
 export const recregister = async (req, res) => {
       try {
             const { companyname, email, cinnumber, companyaddress, companystatus, role, password } = req.body;
-            // Check if all required fields are provided
+         
             if (!companyname || !email || !cinnumber || !companyaddress || !companystatus || !password) {
                   return res.status(400).json({
                         message: "All fields are required",

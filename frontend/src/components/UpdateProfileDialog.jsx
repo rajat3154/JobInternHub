@@ -9,25 +9,26 @@ import {
 import { Label } from "./ui/label";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-import { Loader2 } from "lucide-react";
+import { CloudCog, Loader2 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
-import { USER_API_END_POINT } from "@/utils/constant";
+import { STUDENT_API_END_POINT } from "@/utils/constant";
 import { toast } from "sonner";
 import axios from "axios";
 import { setUser } from "@/redux/authSlice";
 
 const UpdateProfileDialog = ({ open, setOpen }) => {
+  const dispatch = useDispatch();
+  const { user, token: reduxToken } = useSelector((store) => store.auth);
+
   const [loading, setLoading] = useState(false);
-  const { user } = useSelector((store) => store.auth);
   const [input, setInput] = useState({
     fullname: user?.fullname || "",
     email: user?.email || "",
-    phoneNumber: user?.phonenumber || "",
+    phonenumber: user?.phonenumber || "",
     bio: user?.profile?.bio || "",
-    skills: user?.profile?.skills?.join(", ") || "",
-    file: null,
+    skills: user?.profile?.skills ? user.profile.skills.join(", ") : "",
+    file: user?.profile?.resume || null,
   });
-  const dispatch = useDispatch();
 
   const changeEventHandler = (e) => {
     setInput({ ...input, [e.target.name]: e.target.value });
@@ -43,96 +44,148 @@ const UpdateProfileDialog = ({ open, setOpen }) => {
     const formData = new FormData();
     formData.append("fullname", input.fullname);
     formData.append("email", input.email);
-    formData.append("phoneNumber", input.phoneNumber);
+    formData.append("phonenumber", input.phonenumber);
     formData.append("bio", input.bio);
     formData.append("skills", input.skills);
-    if (input.file) {
-      formData.append("file", input.file);
+    if (input.file && typeof input.file !== "string") {
+      formData.append("profile", input.file);
     }
+
     try {
       setLoading(true);
-      const res = await axios.post(
-        `${USER_API_END_POINT}/profile/update`,
+      const token =
+        reduxToken ||
+        document.cookie
+          .split("; ")
+          .find((row) => row.startsWith("token="))
+          ?.split("=")[1];
+
+      if (!token) {
+        throw new Error("Authentication token missing");
+      }
+
+      const res = await axios.put(
+        `${STUDENT_API_END_POINT}/profile/update`,
         formData,
         {
           headers: {
             "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`,
           },
           withCredentials: true,
         }
       );
+
       if (res.data.success) {
         dispatch(setUser(res.data.user));
         toast.success(res.data.message);
+        setOpen(false);
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || "Something went wrong!");
+      console.error("Update Profile Error:", error.response?.data);
+      toast.error(error.response?.data?.message || "Something went wrong");
     } finally {
       setLoading(false);
-      setOpen(false);
     }
   };
 
   return (
-    <Dialog open={open}>
-      <DialogContent
-        className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 sm:max-w-[450px] bg-gray-900 text-white rounded-lg p-6 shadow-xl"
-        onInteractOutside={() => setOpen(false)}
-      >
-        <div className="w-full max-w-lg bg-gray-900 text-white rounded-xl shadow-lg p-6">
-          <DialogHeader>
-            <DialogTitle className="text-center text-2xl font-bold text-blue-400">
-              Update Profile
-            </DialogTitle>
-          </DialogHeader>
-          <form onSubmit={submitHandler} className="space-y-5">
-            {["fullname", "email", "phoneNumber", "bio", "skills"].map(
-              (field) => (
-                <div key={field} className="flex flex-col">
-                  <Label htmlFor={field} className="text-lg font-semibold">
-                    {field.charAt(0).toUpperCase() + field.slice(1)}
-                  </Label>
-                  <Input
-                    id={field}
-                    name={field}
-                    type={field === "email" ? "email" : "text"}
-                    value={input[field]}
-                    onChange={changeEventHandler}
-                    className="mt-2 p-3 bg-gray-800 text-white border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-              )
-            )}
-            <div className="flex flex-col">
-              <Label htmlFor="file" className="text-lg font-semibold">
-                Upload Resume
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogContent className="bg-black bg-opacity-90 rounded-lg shadow-lg p-6 flex justify-center items-center mx-auto w-full max-w-md">
+        <DialogHeader>
+          <DialogTitle className="text-blue-400 text-center text-2xl font-bold">
+            Update Profile
+          </DialogTitle>
+        </DialogHeader>
+        <form onSubmit={submitHandler} className="w-full">
+          <div className="grid gap-6 py-4">
+            {["fullname", "email", "phonenumber", "bio"].map((field) => (
+              <div key={field} className="grid grid-cols-4 items-center gap-4">
+                <Label
+                  htmlFor={field}
+                  className="text-right text-sm font-semibold text-white"
+                >
+                  {field.charAt(0).toUpperCase() + field.slice(1)}
+                </Label>
+                <Input
+                  id={field}
+                  name={field}
+                  type={field === "email" ? "email" : "text"}
+                  value={input[field]}
+                  onChange={changeEventHandler}
+                  className="col-span-3 bg-gray-900 text-white border border-blue-600 focus:ring-2 focus:ring-blue-500 rounded-lg p-3"
+                  disabled={loading}
+                />
+              </div>
+            ))}
+            {/* Skills Input */}
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label
+                htmlFor="skills"
+                className="text-right text-sm font-semibold text-white"
+              >
+                Skills
               </Label>
-              <input
-                id="file"
-                name="file"
-                type="file"
-                accept="application/pdf"
-                onChange={fileChangeHandler}
-                className="mt-2 cursor-pointer p-3 bg-gray-800 text-white border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500"
+              <Input
+                id="skills"
+                name="skills"
+                type="text"
+                value={input.skills}
+                onChange={(e) =>
+                  setInput({
+                    ...input,
+                    skills: e.target.value.split(",").map((s) => s.trim()),
+                  })
+                }
+                className="col-span-3 bg-gray-900 text-white border border-blue-600 focus:ring-2 focus:ring-blue-500 rounded-lg p-3"
+                disabled={loading}
               />
             </div>
-            <DialogFooter className="mt-4">
-              {loading ? (
-                <Button className="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg flex items-center justify-center">
-                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                  Updating...
-                </Button>
-              ) : (
-                <Button
-                  type="submit"
-                  className="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg transition-all duration-300"
-                >
-                  Update
-                </Button>
-              )}
-            </DialogFooter>
-          </form>
-        </div>
+            {/* Resume Upload */}
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label
+                htmlFor="file"
+                className="text-right text-sm font-semibold text-white"
+              >
+                Resume
+              </Label>
+              <div className="col-span-3">
+                {input.file && typeof input.file === "string" && (
+                  <p className="text-sm text-gray-300 mb-2">
+                    Current File: {input.file.split("/").pop()}
+                  </p>
+                )}
+                <input
+                  id="file"
+                  name="file"
+                  type="file"
+                  accept="application/pdf"
+                  onChange={fileChangeHandler}
+                  className="cursor-pointer bg-black text-white border border-blue-600 focus:ring-2 focus:ring-blue-500 rounded-lg p-3 w-full"
+                  disabled={loading}
+                />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            {loading ? (
+              <Button
+                className="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg flex items-center justify-center"
+                disabled
+              >
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Please Wait
+              </Button>
+            ) : (
+              <Button
+                type="submit"
+                className="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg transition-all duration-300"
+              >
+                Update
+              </Button>
+            )}
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );
