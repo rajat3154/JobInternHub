@@ -3,8 +3,10 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import dotenv from "dotenv";
 import connectDB from "./utils/db.js";
+import jobRoute from "./routes/job.route.js"
 
 import studentRoute from "./routes/student.route.js";
+import applicationRoute from "./routes/application.route.js"
 
 dotenv.config({});
 const app = express();
@@ -22,6 +24,8 @@ app.use(cors(corsOptions));
 const PORT = process.env.PORT || 3000;
 
 app.use("/api/v1", studentRoute); 
+app.use("/api/v1/job", jobRoute);
+app.use("/api/v1/application", applicationRoute);
 
 app.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);

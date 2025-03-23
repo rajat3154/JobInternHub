@@ -35,88 +35,129 @@ const Navbar = () => {
    }
  };
   return (
-    <div className="bg-black bg-opacity-90 backdrop-blur-lg shadow-lg border-b border-gray-800">
-      <div className="flex items-center justify-between mx-auto max-w-8xl h-20 px-6">
-        {/* LOGO */}
-        <div className="flex-shrink-0">
-          <h1 className="text-white font-extrabold tracking-wide text-lg md:text-2xl lg:text-3xl">
-            JobIntern<span className="text-blue-500">Hub</span>
+    <div className="bg-black ">
+      <div className="flex items-center justify-between mx-auto max-w-7xl h-16 px-4">
+        {/* Logo */}
+        <div>
+          <h1 className="text-2xl font-bold text-white">
+            Aspire<span className="text-blue-500">Next</span>
           </h1>
         </div>
 
-        {/* NAV ITEMS */}
-        <div className="flex items-center gap-6 ml-auto">
-          <ul className="hidden md:flex items-center gap-6 text-gray-300 text-base">
-            <li>
-              <Link to="/" className="hover:text-white text-lg md:text-xl">
-                Home
-              </Link>
-            </li>
-            <li>
-              <Link to="/jobs" className="hover:text-white text-lg md:text-xl">
-                Jobs
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/internships"
-                className="hover:text-white text-lg md:text-xl"
-              >
-                Internships
-              </Link>
-            </li>
+        {/* Navigation and User Actions */}
+        <div className="flex items-center gap-6">
+          <ul className="flex font-medium items-center gap-5 text-gray-300">
+            {user && user.role === "recruiter" && (
+              <>
+                <li>
+                  <Link
+                    to="/admin/companies"
+                    className="hover:text-white transition duration-300"
+                  >
+                    Companies
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/admin/jobs"
+                    className="hover:text-white transition duration-300"
+                  >
+                    Jobs
+                  </Link>
+                </li>
+              </>
+            )}
+            {user && user.role === "student" && (
+              <>
+                <li>
+                  <Link
+                    to="/"
+                    className="hover:text-white transition duration-300"
+                  >
+                    Home
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/jobs"
+                    className="hover:text-white transition duration-300"
+                  >
+                    Jobs
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/browse"
+                    className="hover:text-white transition duration-300"
+                  >
+                    Browse
+                  </Link>
+                </li>
+              </>
+            )}
           </ul>
 
-          {/* AUTH BUTTONS */}
           {!user ? (
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
               <Link to="/login">
                 <Button
                   variant="outline"
-                  className="border-gray-500 text-white hover:bg-gray-700 px-4 py-3"
+                  className="border-gray-500 text-black hover:bg-gray-700 hover:text-white"
                 >
                   Login
                 </Button>
               </Link>
               <Link to="/signup">
-                <Button className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-3">
+                <Button className="bg-blue-600 hover:bg-blue-500 text-white">
                   Signup
                 </Button>
               </Link>
             </div>
           ) : (
             <Popover>
-              {/* FIX: Wrap Avatar in div to ensure proper trigger */}
               <PopoverTrigger asChild>
-                <div className="cursor-pointer">
-                  <Avatar className="w-10 h-10 rounded-full border border-gray-500">
-                    <AvatarImage src={profilePic} alt="profile image" />
-                    <AvatarFallback>U</AvatarFallback>
-                  </Avatar>
-                </div>
+                <Avatar className="w-8 h-8 rounded-full cursor-pointer border border-gray-500">
+                  <AvatarImage
+                    src={user?.profile?.profilePhoto}
+                    alt="Profile Picture"
+                  />
+                  <AvatarFallback>
+                    {user?.fullname
+                      ?.split(" ")
+                      ?.map((name) => name[0])
+                      ?.join("")
+                      ?.toUpperCase() || "U"}
+                  </AvatarFallback>
+                </Avatar>
               </PopoverTrigger>
-
-              {/* FIX: Add portal={false} to prevent positioning issues */}
-              <PopoverContent
-                portal={false}
-                className="w-64 p-4 bg-black border-gray-700 text-gray-300 rounded-lg"
-              >
-                {/* User Profile Info */}
-                <div className="flex items-center gap-2 mb-4">
+              <PopoverContent className="w-64 p-4 bg-black border-gray-700 text-gray-300 rounded-lg">
+                {/* User Info */}
+                <div className="flex items-center gap-4 mb-4">
                   <Avatar className="w-10 h-10 rounded-full border border-gray-500">
-                    <AvatarImage src={profilePic} alt="profile image" />
-                    <AvatarFallback>SS</AvatarFallback>
+                    <AvatarImage
+                      src={user?.profile?.profilePhoto}
+                      alt="Profile Picture"
+                    />
+                    <AvatarFallback>
+                      {user?.fullname
+                        ?.split(" ")
+                        ?.map((name) => name[0])
+                        ?.join("")
+                        ?.toUpperCase() || "U"}
+                    </AvatarFallback>
                   </Avatar>
                   <div>
-                    <Button variant="link" className="text-gray-300">
-                      <Link to="/profile">View Profile</Link>
-                    </Button>
+                    <h4 className="font-medium text-lg text-white">
+                      {user?.fullname}
+                    </h4>
+                    <p className="text-sm text-gray-400">
+                      {user?.profile?.bio}
+                    </p>
                   </div>
                 </div>
 
-                {/* Menu Options */}
                 <div className="space-y-2">
-                  {user.role === "student" && (
+                  {user && user.role === "student" && (
                     <div className="flex items-center gap-2 cursor-pointer">
                       <User2 className="text-gray-300" />
                       <Button variant="link" className="text-gray-300">
@@ -127,9 +168,9 @@ const Navbar = () => {
                   <div className="flex items-center gap-2 cursor-pointer">
                     <LogOut className="text-gray-300" />
                     <Button
-                      variant="link"
-                      className="text-gray-300 hover:text-white cursor-pointer"
                       onClick={logoutHandler}
+                      variant="link"
+                      className="text-gray-300 hover:text-white"
                     >
                       Logout
                     </Button>
