@@ -12,7 +12,6 @@ export const applyJob = async (req, res) => {
                         success: false,
                   });
             }
-            //check if the user has already applied for job
             const existingApplication = await Application.findOne({
                   job: jobId,
                   applicant: userId,
@@ -23,7 +22,6 @@ export const applyJob = async (req, res) => {
                         success: false,
                   });
             }
-            //check if the job exists
             const job = await Job.findById(jobId);
             if (!job) {
                   return res.status(404).json({
@@ -31,7 +29,6 @@ export const applyJob = async (req, res) => {
                         success: false,
                   });
             }
-            //create a new application
             const newApplication = await Application.create({
                   job: jobId,
                   applicant: userId,
@@ -74,7 +71,7 @@ export const getAppliedJobs = async (req, res) => {
       }
 };
 import { Job } from "../models/job.model.js";
-import { Student } from "../models/student.model.js"; // ✅ Import Student model
+import { Student } from "../models/student.model.js"; 
 
 export const getApplicants = async (req, res) => {
       try {
@@ -84,8 +81,8 @@ export const getApplicants = async (req, res) => {
                   options: { sort: { createdAt: -1 } },
                   populate: {
                         path: "applicant",
-                        model: "Student", // ✅ Explicitly specify Student model
-                        select: "name email skills resume", // ✅ Only fetch relevant fields
+                        model: "Student", 
+                        select: "name email skills resume", 
                   },
             });
 
@@ -95,7 +92,7 @@ export const getApplicants = async (req, res) => {
 
             return res.status(200).json({
                   job,
-                  applicants: job.applications.map(app => app.applicant), // ✅ Return only applicants
+                  applicants: job.applications.map(app => app.applicant), 
                   success: true,
             });
 

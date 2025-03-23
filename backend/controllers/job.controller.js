@@ -16,7 +16,7 @@ export const postJob = async (req, res) => {
             const job = await Job.create({
                   title,
                   description,
-                  requirements: Array.isArray(requirements) ? requirements : [requirements],  // ✅ Fixed this line
+                  requirements: Array.isArray(requirements) ? requirements : [requirements],  
                   salary: Number(salary),
                   location,
                   jobType,
@@ -50,7 +50,7 @@ export const getAllJobs = async (req, res) => {
             };
 
             const jobs = await Job.find(query)
-                  .populate({ path: "recruiter", select: "companyname email companyaddress companystatus" }) // ✅ Populate Recruiter details
+                  .populate({ path: "recruiter", select: "companyname email companyaddress companystatus" }) 
                   .sort({ createdAt: -1 });
 
             if (!jobs || jobs.length === 0) {

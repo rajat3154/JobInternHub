@@ -9,7 +9,7 @@ const jobSchema = new mongoose.Schema({
       location: { type: String, required: true },
       jobType: { type: String, required: true },
       position: { type: Number, required: true },
-      recruiter: { type: mongoose.Schema.Types.ObjectId, ref: 'Recruiter', required: true }, // ✅ Reference Recruiter
+      recruiter: { type: mongoose.Schema.Types.ObjectId, ref: 'Recruiter', required: true }, 
       created_by: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
       applications: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Application' }]
 }, { timestamps: true });
