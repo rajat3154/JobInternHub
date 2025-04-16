@@ -21,8 +21,12 @@ const isAuthenticated = async (req, res, next) => {
                   });
             }
 
-            req.id = decode.userId; 
-            console.log("Authenticated User ID:", req.id);
+            req.user = {
+                  id: decode.userId,
+                  role: decode.role, // 👈 make sure this exists in the token
+            };
+
+            console.log("Authenticated User:", req.user);
             next();
       } catch (error) {
             console.error("Authentication Error:", error.message);
@@ -32,5 +36,6 @@ const isAuthenticated = async (req, res, next) => {
             });
       }
 };
+
 
 export default isAuthenticated;

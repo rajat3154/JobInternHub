@@ -9,8 +9,11 @@ import {
   TableRow,
 } from "./ui/table";
 import { Badge } from "./ui/badge";
+import { useSelector } from "react-redux";
 
 const AppliedJobTable = () => {
+  const { allAppliedJobs } = useSelector((store) => store.job);
+
   return (
     <div>
       <Table className="min-w-full bg-black text-white rounded-lg shadow-lg overflow-hidden">
@@ -28,36 +31,43 @@ const AppliedJobTable = () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          <TableRow className="hover:bg-blue-700 transition-all duration-200">
-            <TableCell className="py-3 px-4">2024-03-10</TableCell>
-            <TableCell className="py-3 px-4">Frontend Developer</TableCell>
-            <TableCell className="py-3 px-4">HP</TableCell>
-            <TableCell className="py-3 px-4 text-right">
-              <Badge className="bg-green-400 text-white py-1 px-3 rounded-full">
-                ACCEPTED
-              </Badge>
-            </TableCell>
-          </TableRow>
-          <TableRow className="hover:bg-blue-700 transition-all duration-200">
-            <TableCell className="py-3 px-4">2024-03-05</TableCell>
-            <TableCell className="py-3 px-4">Backend Engineer</TableCell>
-            <TableCell className="py-3 px-4">Amazon</TableCell>
-            <TableCell className="py-3 px-4 text-right">
-              <Badge className="bg-gray-400 text-white py-1 px-3 rounded-full">
-                PENDING
-              </Badge>
-            </TableCell>
-          </TableRow>
-          <TableRow className="hover:bg-blue-700 transition-all duration-200">
-            <TableCell className="py-3 px-4">2024-02-28</TableCell>
-            <TableCell className="py-3 px-4">UI/UX Designer</TableCell>
-            <TableCell className="py-3 px-4">Panasonic</TableCell>
-            <TableCell className="py-3 px-4 text-right">
-              <Badge className="bg-red-400 text-white py-1 px-3 rounded-full">
-                REJECTED
-              </Badge>
-            </TableCell>
-          </TableRow>
+          {allAppliedJobs.length <= 0 ? (
+            <TableRow>
+              <TableCell colSpan={4} className="text-center py-4 text-gray-500">
+                You haven't applied to any jobs yet.
+              </TableCell>
+            </TableRow>
+          ) : (
+            allAppliedJobs.map((appliedJob) => (
+              <TableRow
+                key={appliedJob._id}
+                className="hover:bg-blue-700 transition-all duration-200"
+              >
+                <TableCell className="py-3 px-4">
+                  {appliedJob?.createdAt?.split("T")[0]}
+                </TableCell>
+                <TableCell className="py-3 px-4">
+                  {appliedJob.job?.title}
+                </TableCell>
+                <TableCell className="py-3 px-4">
+                  {appliedJob.job?.company}
+                </TableCell>
+                <TableCell className="py-3 px-4 text-right">
+                    <Badge
+    className={`${
+      appliedJob?.status === "rejected"
+        ? "bg-red-400 text-white"
+        : appliedJob.status === "pending"
+        ? "bg-gray-400 text-white"
+        : "bg-green-400 text-white"
+    } py-1 px-3 rounded-full`}
+  >
+    {appliedJob.status.toUpperCase()}
+  </Badge>
+                </TableCell>
+              </TableRow>
+            ))
+          )}
         </TableBody>
       </Table>
     </div>
@@ -65,4 +75,3 @@ const AppliedJobTable = () => {
 };
 
 export default AppliedJobTable;
-  

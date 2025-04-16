@@ -1,4 +1,4 @@
-import { Recruiter } from "../models/recruiter.model.js";
+import  {Recruiter}  from "../models/recruiter.model.js";
 import { Student } from "../models/student.model.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken"
@@ -71,6 +71,8 @@ export const sregister = async (req, res) => {
 };
 
 
+
+
 export const login = async (req, res) => {
       try {
             const { email, password, role } = req.body;
@@ -82,6 +84,45 @@ export const login = async (req, res) => {
                   });
             }
 
+            // 🔐 Admin login
+            if (role === "admin") {
+                  if (email !== "admin@gmail.com" || password !== "admin") {
+                        return res.status(400).json({
+                              message: "Invalid admin credentials",
+                              success: false,
+                        });
+                  }
+
+                  const adminUser = {
+                        _id: "admin_default_id",
+                        email,
+                        role,
+                        fullname: "Admin",
+                  };
+
+                  const token = jwt.sign(
+                        { userId: adminUser._id, role: "admin" },
+                        process.env.SECRET_KEY,
+                        { expiresIn: "1d" }
+                  );
+
+                  return res
+                        .status(200)
+                        .cookie("token", token, {
+                              maxAge: 24 * 60 * 60 * 1000,
+                              httpOnly: true,
+                              secure: process.env.NODE_ENV === "production",
+                              sameSite: "lax",
+                        })
+                        .json({
+                              message: "Welcome Admin",
+                              success: true,
+                              user: adminUser,
+                              token,
+                        });
+            }
+
+            // 🔍 Determine model based on role
             const userModel = role === "student" ? Student : Recruiter;
             const user = await userModel.findOne({ email });
 
@@ -107,9 +148,12 @@ export const login = async (req, res) => {
                   });
             }
 
-            const token = jwt.sign({ userId: user._id }, process.env.SECRET_KEY, {
-                  expiresIn: "1d",
-            });
+            // ✅ INCLUDE role in token!
+            const token = jwt.sign(
+                  { userId: user._id, role: user.role },
+                  process.env.SECRET_KEY,
+                  { expiresIn: "1d" }
+            );
 
             const userResponse =
                   role === "student"
@@ -139,9 +183,9 @@ export const login = async (req, res) => {
             return res
                   .status(200)
                   .cookie("token", token, {
-                        maxAge: 24 * 60 * 60 * 1000, // 1 day
+                        maxAge: 24 * 60 * 60 * 1000,
                         httpOnly: true,
-                        secure: process.env.NODE_ENV === "production", 
+                        secure: process.env.NODE_ENV === "production",
                         sameSite: "lax",
                   })
                   .json({
@@ -159,6 +203,8 @@ export const login = async (req, res) => {
             });
       }
 };
+
+
 export const logout = async (req, res) => {
       try {
             return res.status(200).cookie("token", "", { maxAge: 0 }).json({
@@ -214,4 +260,29 @@ export const updateProfile = async (req, res) => {
                   success: false,
             });
       }
+};
+export const getAllStudents = async (req, res) => {
+      try {
+            const students = await Student.find().sort({ createdAt: -1 });
+
+            return res.status(200).json({
+                  success: true,
+                  students,
+            });
+      } catch (error) {
+            console.error("Error fetching students:", error);
+            return res.status(500).json({
+                  success: false,
+                  message: "Failed to fetch students",
+            });
+      }
+};
+export const isAdmin = (req, res, next) => {
+      if (!req.user || req.user.role !== "admin") {
+            return res.status(403).json({
+                  success: false,
+                  message: "Access denied. Admins only.",
+            });
+      }
+      next();
 };

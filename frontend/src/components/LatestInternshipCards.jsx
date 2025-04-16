@@ -1,13 +1,36 @@
 import React from "react";
+import { Button } from "./ui/button";
+import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const LatestInternshipCards = ({ internship }) => {
+   const navigate = useNavigate();
+   const { user } = useSelector((store) => store.auth);
   return (
     <div className="relative p-6 rounded-lg shadow-lg bg-black text-white border border-blue-500 hover:bg-gray-800 cursor-pointer transition duration-300 overflow-hidden">
       {/* Apply Now Button */}
-      <button className="absolute top-3 right-4 text-white bg-green-600 border-green-600 hover:bg-green-700 transition duration-300 ease-in-out px-4 py-2 rounded-md cursor-pointer">
-        Apply Now
-      </button>
-
+      <Button
+             variant="outline"
+             size="sm"
+             className="absolute top-3 right-32 text-white bg-purple-800 border-purple-800 hover:bg-purple-900 transition-all duration-300 ease-in-out px-4 py-2 rounded-md cursor-pointer shadow-lg hover:shadow-purple-400"
+             onClick={() => {
+               if (user?.role === "student") {
+                 navigate(`/internship/description`);
+               } else if (user?.role === "recruiter") {
+                 navigate(`/internship/details`);
+               }
+             }}
+           >
+             Details
+           </Button>
+     
+           <Button
+             variant="outline"
+             size="sm"
+             className="absolute top-3 right-4 text-white bg-green-500 border-green-500 hover:bg-green-600 transition-all duration-300 ease-in-out px-4 py-2 rounded-md cursor-pointer shadow-lg hover:shadow-green-400"
+           >
+             Apply Now
+           </Button>
       {/* Header with Date */}
       <div className="flex justify-between mb-4">
         <p className="text-sm text-gray-400">

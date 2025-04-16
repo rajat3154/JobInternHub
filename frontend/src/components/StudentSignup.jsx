@@ -64,7 +64,7 @@ const StudentSignup = () => {
       );
 
       if (res.data.success) {
-        navigate("/login");
+        // navigate("/login");
         toast.success(res.data.message);
       }
     } catch (error) {
@@ -77,8 +77,8 @@ const StudentSignup = () => {
 
   return (
     <>
-      <Navbar />
-      <div className="flex items-center justify-center bg-black min-h-screen p-4">
+      {/* <Navbar /> */}
+      {/* <div className="flex items-center justify-center bg-black min-h-screen p-4"> */}
         <form
           onSubmit={submitHandler}
           className="w-full max-w-md bg-black bg-opacity-90 text-white border border-blue-600 rounded-lg shadow-lg p-6"
@@ -197,7 +197,7 @@ const StudentSignup = () => {
             </Link>
           </p>
         </form>
-      </div>
+      {/* </div> */}
     </>
   );
 };

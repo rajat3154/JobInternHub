@@ -10,6 +10,13 @@ import Internships from './components/Internships';
 import StudentSignup from "./components/StudentSignup";
 import RecruiterSignup from "./components/RecruiterSignup";
 import JobDescription from "./components/JobDescription";
+import JobDetails from "./components/JobDetails";
+import InternshipDescription from "./components/InternshipDescription";
+import InternshipDetails from "./components/InternshipDetails";
+import Notifications from "./components/Notifications";
+import Admin from "./components/Admin";
+
+
 
 const appRouter = createBrowserRouter([
   {
@@ -46,9 +53,30 @@ const appRouter = createBrowserRouter([
     element: <RecruiterSignup />,
   },
   {
-    path: "/jobdescription",
+    path: "job/description/:id",
     element: <JobDescription />,
   },
+  {
+    path: "job/details/:id",
+    element: <JobDetails />,
+  },
+  {
+    path: "internship/description/:id",
+    element: <InternshipDescription />,
+  },
+  {
+    path: "internship/details",
+    element: <InternshipDetails />,
+  },
+  {
+    path: "notifications",
+    element: <Notifications />,
+  },
+  {
+    path: "/admin",
+    element: <Admin />,
+  },
+ 
 ]);
 function App() {
   return (

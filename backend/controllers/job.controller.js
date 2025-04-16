@@ -1,29 +1,45 @@
 import { Job } from "../models/job.model.js";
 import { Student } from "../models/student.model.js";
+import  {Recruiter}  from "../models/recruiter.model.js";
 
 export const postJob = async (req, res) => {
       try {
-            const { title, description, requirements, salary, location, jobType, experience, position, recruiterId } = req.body;
-            const userId = req.id;
+            const {
+                  title,
+                  description,
+                  requirements,
+                  salary,
+                  location,
+                  jobType,
+                  experience,
+                  position
+            } = req.body;
 
-            if (!title || !description || !requirements || !salary || !location || !jobType || !experience || !position || !recruiterId) {
-                  return res.status(400).json({
-                        message: "Please fill in all fields",
-                        success: false,
+            const recruiterId = req.user.id; // ✅ logged-in recruiter
+            console.log(recruiterId);
+            // ✅ Fetch recruiter details
+            const recruiter = await Recruiter
+            .findById(recruiterId);
+
+            if (!recruiter) {
+                  return res.status(404).json({
+                        message: "Recruiter not found",
+                        success: false
                   });
             }
 
+            // ✅ Create job with company name and recruiter ID
             const job = await Job.create({
                   title,
                   description,
-                  requirements: Array.isArray(requirements) ? requirements : [requirements],  
+                  requirements: Array.isArray(requirements) ? requirements : [requirements],
                   salary: Number(salary),
                   location,
                   jobType,
                   experience,
                   position,
-                  recruiter: recruiterId,
-                  created_by: userId
+                  company: recruiter.companyname, // ✅ Store company name directly
+                  created_by: recruiterId
             });
 
             return res.status(201).json({
@@ -49,9 +65,10 @@ export const getAllJobs = async (req, res) => {
                   ],
             };
 
-            const jobs = await Job.find(query)
-                  .populate({ path: "recruiter", select: "companyname email companyaddress companystatus" }) 
-                  .sort({ createdAt: -1 });
+          const jobs = await Job.find(query)
+  .populate({ path: "created_by", select: "companyname email companyaddress companystatus" }) // ✅ changed recruiter ➝ created_by
+  .sort({ createdAt: -1 });
+
 
             if (!jobs || jobs.length === 0) {
                   return res.status(404).json({
@@ -94,3 +111,38 @@ export const getJobById = async (req, res) => {
             console.log(error);
       }
 }
+
+
+export const getRecuiterJobs = async (req, res) => {
+      try {
+
+            const jobs = await Job.find({ created_by: req.id }).sort({ createdAt: -1 });
+
+            if (!jobs) {
+                  return res.status(404).json({
+                        message: "No jobs found",
+                        success: false
+                  })
+            }
+            return res.status(200).json({
+                  jobs,
+                  success: true
+            })
+
+      } catch (error) {
+            console.log(error);
+      }
+}
+// Get latest jobs
+export const getLatestJobs = async (req, res) => {
+      try {
+            const latestJobs = await Job.find()
+                  .sort({ createdAt: -1 }) // Sort by newest first
+                  .limit(5); // Fetch only top 6
+
+            res.status(200).json({ success: true, jobs: latestJobs });
+      } catch (error) {
+            console.error("Failed to fetch latest jobs:", error);
+            res.status(500).json({ success: false, message: "Internal Server Error" });
+      }
+};

@@ -1,193 +1,140 @@
-import React, { useState } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "./ui/dialog";
-import { Label } from "./ui/label";
-import { Input } from "./ui/input";
-import { Button } from "./ui/button";
-import { CloudCog, Loader2 } from "lucide-react";
-import { useDispatch, useSelector } from "react-redux";
-import { STUDENT_API_END_POINT } from "@/utils/constant";
-import { toast } from "sonner";
-import axios from "axios";
-import { setUser } from "@/redux/authSlice";
+import React from "react";
 
 const UpdateProfileDialog = ({ open, setOpen }) => {
-  const dispatch = useDispatch();
-  const { user, token: reduxToken } = useSelector((store) => store.auth);
-
-  const [loading, setLoading] = useState(false);
-  const [input, setInput] = useState({
-    fullname: user?.fullname || "",
-    email: user?.email || "",
-    phonenumber: user?.phonenumber || "",
-    bio: user?.profile?.bio || "",
-    skills: user?.profile?.skills ? user.profile.skills.join(", ") : "",
-    file: user?.profile?.resume || null,
-  });
-
-  const changeEventHandler = (e) => {
-    setInput({ ...input, [e.target.name]: e.target.value });
-  };
-
-  const fileChangeHandler = (e) => {
-    const file = e.target.files?.[0];
-    setInput({ ...input, file });
-  };
-
-  const submitHandler = async (e) => {
-    e.preventDefault();
-    const formData = new FormData();
-    formData.append("fullname", input.fullname);
-    formData.append("email", input.email);
-    formData.append("phonenumber", input.phonenumber);
-    formData.append("bio", input.bio);
-    formData.append("skills", input.skills);
-    if (input.file && typeof input.file !== "string") {
-      formData.append("profile", input.file);
-    }
-
-    try {
-      setLoading(true);
-      const token =
-        reduxToken ||
-        document.cookie
-          .split("; ")
-          .find((row) => row.startsWith("token="))
-          ?.split("=")[1];
-
-      if (!token) {
-        throw new Error("Authentication token missing");
-      }
-
-      const res = await axios.put(
-        `${STUDENT_API_END_POINT}/profile/update`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${token}`,
-          },
-          withCredentials: true,
-        }
-      );
-
-      if (res.data.success) {
-        dispatch(setUser(res.data.user));
-        toast.success(res.data.message);
-        setOpen(false);
-      }
-    } catch (error) {
-      console.error("Update Profile Error:", error.response?.data);
-      toast.error(error.response?.data?.message || "Something went wrong");
-    } finally {
-      setLoading(false);
-    }
-  };
+  if (!open) return null;
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="bg-black bg-opacity-90 rounded-lg shadow-lg p-6 flex justify-center items-center mx-auto w-full max-w-md">
-        <DialogHeader>
-          <DialogTitle className="text-blue-400 text-center text-2xl font-bold">
-            Update Profile
-          </DialogTitle>
-        </DialogHeader>
-        <form onSubmit={submitHandler} className="w-full">
-          <div className="grid gap-6 py-4">
-            {["fullname", "email", "phonenumber", "bio"].map((field) => (
-              <div key={field} className="grid grid-cols-4 items-center gap-4">
-                <Label
-                  htmlFor={field}
-                  className="text-right text-sm font-semibold text-white"
-                >
-                  {field.charAt(0).toUpperCase() + field.slice(1)}
-                </Label>
-                <Input
-                  id={field}
-                  name={field}
-                  type={field === "email" ? "email" : "text"}
-                  value={input[field]}
-                  onChange={changeEventHandler}
-                  className="col-span-3 bg-gray-900 text-white border border-blue-600 focus:ring-2 focus:ring-blue-500 rounded-lg p-3"
-                  disabled={loading}
-                />
-              </div>
-            ))}
-            {/* Skills Input */}
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label
-                htmlFor="skills"
-                className="text-right text-sm font-semibold text-white"
-              >
-                Skills
-              </Label>
-              <Input
-                id="skills"
-                name="skills"
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm z-50 p-4">
+      <div className="bg-black p-8 rounded-xl shadow-2xl w-full max-w-2xl border-2 border-blue-500/50">
+        {/* Header */}
+        <div className="mb-6 pb-4 border-b border-blue-500/30">
+          <h2 className="text-2xl font-bold text-blue-400">Update Profile</h2>
+          <p className="text-sm text-gray-400 mt-1">
+            Keep your information updated
+          </p>
+        </div>
+
+        {/* Form Fields */}
+        <form className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Name */}
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-blue-300/90">
+                Full Name
+              </label>
+              <input
                 type="text"
-                value={input.skills}
-                onChange={(e) =>
-                  setInput({
-                    ...input,
-                    skills: e.target.value.split(",").map((s) => s.trim()),
-                  })
-                }
-                className="col-span-3 bg-gray-900 text-white border border-blue-600 focus:ring-2 focus:ring-blue-500 rounded-lg p-3"
-                disabled={loading}
+                placeholder="John Doe"
+                className="w-full px-4 py-3 bg-gray-800/70 border border-blue-500/30 rounded-lg 
+                         focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+                         placeholder-gray-500 text-gray-100 transition-all"
               />
             </div>
-            {/* Resume Upload */}
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label
-                htmlFor="file"
-                className="text-right text-sm font-semibold text-white"
-              >
-                Resume
-              </Label>
-              <div className="col-span-3">
-                {input.file && typeof input.file === "string" && (
-                  <p className="text-sm text-gray-300 mb-2">
-                    Current File: {input.file.split("/").pop()}
-                  </p>
-                )}
-                <input
-                  id="file"
-                  name="file"
-                  type="file"
-                  accept="application/pdf"
-                  onChange={fileChangeHandler}
-                  className="cursor-pointer bg-black text-white border border-blue-600 focus:ring-2 focus:ring-blue-500 rounded-lg p-3 w-full"
-                  disabled={loading}
-                />
+
+            {/* Email */}
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-blue-300/90">
+                Email
+              </label>
+              <input
+                type="email"
+                placeholder="john@example.com"
+                className="w-full px-4 py-3 bg-gray-800/70 border border-blue-500/30 rounded-lg 
+                         focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+                         placeholder-gray-500 text-gray-100 transition-all"
+              />
+            </div>
+
+            {/* Phone */}
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-blue-300/90">
+                Phone Number
+              </label>
+              <input
+                type="tel"
+                placeholder="+1 234 567 890"
+                className="w-full px-4 py-3 bg-gray-800/70 border border-blue-500/30 rounded-lg 
+                         focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+                         placeholder-gray-500 text-gray-100 transition-all"
+              />
+            </div>
+
+            {/* Skills */}
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-blue-300/90">
+                Skills
+              </label>
+              <input
+                type="text"
+                placeholder="React, Node.js, Python"
+                className="w-full px-4 py-3 bg-gray-800/70 border border-blue-500/30 rounded-lg 
+                         focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+                         placeholder-gray-500 text-gray-100 transition-all"
+              />
+            </div>
+          </div>
+
+          {/* Bio */}
+          <div className="space-y-2">
+            <label className="block text-sm font-semibold text-blue-300/90">
+              Bio
+            </label>
+            <textarea
+              rows="4"
+              placeholder="Describe your professional experience..."
+              className="w-full px-4 py-3 bg-gray-800/70 border border-blue-500/30 rounded-lg 
+                       focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+                       placeholder-gray-500 text-gray-100 transition-all"
+            />
+          </div>
+
+          {/* Resume Upload */}
+          <div className="space-y-2">
+            <label className="block text-sm font-semibold text-blue-300/90">
+              Resume
+            </label>
+            <div className="flex items-center justify-center w-full bg-gray-800/70 border-2 border-dashed border-blue-500/30 rounded-lg p-6">
+              <div className="text-center">
+                <p className="text-sm text-gray-400">
+                  Drag and drop PDF file here
+                </p>
+                <p className="text-xs text-gray-500 mt-1">or</p>
+                <label
+                  className="cursor-pointer mt-1 inline-block px-4 py-2 bg-blue-500/20 text-blue-400 rounded-md 
+                                  hover:bg-blue-500/30 transition-colors text-sm"
+                >
+                  Browse Files
+                  <input
+                    type="file"
+                    accept="application/pdf"
+                    className="hidden"
+                  />
+                </label>
               </div>
             </div>
           </div>
-          <DialogFooter>
-            {loading ? (
-              <Button
-                className="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg flex items-center justify-center"
-                disabled
-              >
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Please Wait
-              </Button>
-            ) : (
-              <Button
-                type="submit"
-                className="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg transition-all duration-300"
-              >
-                Update
-              </Button>
-            )}
-          </DialogFooter>
+
+          {/* Action Buttons */}
+          <div className="flex justify-end gap-4 pt-6 border-t border-blue-500/30">
+            <button
+              type="button"
+              onClick={() => setOpen(false)}
+              className="px-6 py-2.5 text-gray-300 bg-gray-700/50 rounded-lg 
+                       hover:bg-gray-700 transition-colors border border-gray-600"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-6 py-2.5 text-white bg-blue-500 rounded-lg 
+                       hover:bg-blue-600 transition-colors shadow-lg shadow-blue-500/20"
+            >
+              Save Changes
+            </button>
+          </div>
         </form>
-      </DialogContent>
-    </Dialog>
+      </div>
+    </div>
   );
 };
 

@@ -28,6 +28,25 @@ const Login = () => {
 
   const submitHandler = async (e) => {
     e.preventDefault();
+
+    // Default Admin Credentials Check
+    if (
+      input.email === "admin@gmail.com" &&
+      input.password === "admin" &&
+      input.role === "admin"
+    ) {
+      const adminUser = {
+        _id: "admin_default_id",
+        email: "admin@gmail.com",
+        role: "admin",
+        fullname: "Admin",
+      };
+      dispatch(setUser(adminUser));
+      toast.success("Welcome Admin");
+      navigate("/admin");
+      return;
+    }
+
     if (!input.role) {
       toast.error("Please select a role");
       return;
@@ -42,18 +61,19 @@ const Login = () => {
         withCredentials: true,
       });
       if (res.data.success) {
-        console.log("User data:", res.data.user);
         dispatch(setUser(res.data.user));
+
         navigate("/");
         toast.success(res.data.message);
       }
     } catch (error) {
       console.log(error);
-      toast.error(error.response.data.message);
+      toast.error(error.response?.data?.message || "Login failed");
     } finally {
       dispatch(setLoading(false));
     }
   };
+
 
   const formStyle = {
     position: "relative",
@@ -143,6 +163,20 @@ const Login = () => {
               />
               <Label className="text-sm text-blue-300 cursor-pointer">
                 Recruiter
+              </Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Input
+                type="radio"
+                name="role"
+                value="admin"
+                checked={input.role === "admin"}
+                onChange={changeEventHandler}
+                className="cursor-pointer"
+                required
+              />
+              <Label className="text-sm text-blue-300 cursor-pointer">
+                Admin
               </Label>
             </div>
           </RadioGroup>
