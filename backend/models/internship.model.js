@@ -9,7 +9,6 @@ const internshipSchema = new mongoose.Schema({
       type: { type: String, enum: ["Remote", "In-office", "Hybrid"], default: "Remote" },
       skills: [{ type: String }],                         
       recruiter: { type: mongoose.Schema.Types.ObjectId, ref: 'Recruiter', required: true },
-      created_by: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
       applications: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Application' }]
 }, { timestamps: true });
 

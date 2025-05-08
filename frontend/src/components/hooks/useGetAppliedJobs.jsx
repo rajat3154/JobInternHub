@@ -1,23 +1,33 @@
-const getAppliedJobs = async (req, res, next) => {
-  try {
-    const userId = req.user._id;
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { useSelector } from "react-redux";
+import { APPLICATION_API_END_POINT } from "@/utils/constant";
 
-    const applications = await Application.find({ applicant: userId })
-      .sort({ createdAt: -1 })
-      .populate({
-        path: "job",
-        populate: {
-          path: "created_by", // This is the recruiter
-          select: "companyname", // ✅ Only include companyName
-        },
-      });
+const useGetAppliedJobs = () => {
+  const { user } = useSelector((state) => state.auth);
+  const [appliedJobs, setAppliedJobs] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-    res.status(200).json({
-      success: true,
-      application: applications,
-    });
-  } catch (error) {
-    next(error);
-  }
+  useEffect(() => {
+    if (!user?._id) return;
+
+    const fetchJobs = async () => {
+      try {
+        const { data } = await axios.get(`${APPLICATION_API_END_POINT}/get`,{
+          withCredentials:true
+        });
+        setAppliedJobs(data?.appliedJobs || []);
+      } catch (err) {
+        console.error("Failed to fetch applied jobs", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchJobs();
+  }, [user]);
+
+  return { appliedJobs, loading };
 };
-export default getAppliedJobs;
+
+export default useGetAppliedJobs;

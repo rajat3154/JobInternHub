@@ -1,33 +1,45 @@
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
+
 dotenv.config();
 
+// Authentication Middleware
 const isAuthenticated = async (req, res, next) => {
       try {
+            // Retrieve token from cookies
             const token = req.cookies.token;
 
+            // Check if token exists
             if (!token) {
                   return res.status(401).json({
-                        message: "User not authenticated",
+                        message: "User not authenticated, token missing",
                         success: false,
                   });
             }
 
-            const decode = jwt.verify(token, process.env.SECRET_KEY);
-            if (!decode || !decode.userId) {
+            // Verify the token
+            const decoded = jwt.verify(token, process.env.SECRET_KEY);
+
+            // Ensure the decoded token has the required userId
+            if (!decoded || !decoded.userId) {
                   return res.status(401).json({
-                        message: "Invalid token",
+                        message: "Invalid token or missing userId",
                         success: false,
                   });
             }
 
+            // Attach the user info to the request
             req.user = {
-                  id: decode.userId,
-                  role: decode.role, // 👈 make sure this exists in the token
+                  id: decoded.userId,
+                  role: decoded.role, // Assuming role exists in the token
             };
 
+            // Debug log for verification
             console.log("Authenticated User:", req.user);
+
+            // Proceed to the next middleware or route handler
             next();
+
       } catch (error) {
             console.error("Authentication Error:", error.message);
             return res.status(500).json({
@@ -36,6 +48,5 @@ const isAuthenticated = async (req, res, next) => {
             });
       }
 };
-
 
 export default isAuthenticated;

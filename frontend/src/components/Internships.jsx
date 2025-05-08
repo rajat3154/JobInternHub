@@ -1,23 +1,20 @@
 import React, { useEffect, useState } from "react";
 import Navbar from "./shared/Navbar";
-import profilePic from "./assets/a.jpg";
-import FilterCard from "./FilterCard";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import PostInternship from "./recruiter/PostInternship";
 import { Button } from "./ui/button";
 import { setAllInternships } from "../redux/internshipSlice";
+import LatestInternshipCards from "./LatestInternshipCards";
 
 const Internships = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { user } = useSelector((store) => store.auth);
-  const { allInternships, searchedQuery } = useSelector(
-    (store) => store.internship
-  );
-  const [filterInternships, setFilterInternships] = useState([]);
+  const { allInternships } = useSelector((store) => store.internship);
+
+  const [recruiterInternships, setRecruiterInternships] = useState([]);
   const [showPostInternship, setShowPostInternship] = useState(false);
-  const [selectedFilters, setSelectedFilters] = useState({});
 
   const fetchInternships = async () => {
     try {
@@ -32,51 +29,41 @@ const Internships = () => {
       const data = await response.json();
       if (data.success && Array.isArray(data.internships)) {
         dispatch(setAllInternships(data.internships));
-        setFilterInternships(data.internships);
       }
     } catch (error) {
       console.error("Error fetching internships:", error);
     }
   };
 
-  useEffect(() => {
-    fetchInternships();
-  }, [dispatch]);
-
-  useEffect(() => {
-    const fetchFilteredInternships = async () => {
-      try {
-        const params = new URLSearchParams();
-        for (const key in selectedFilters) {
-          selectedFilters[key].forEach((value) => params.append(key, value));
-        }
-
-        const queryString = params.toString();
-        const url = `http://localhost:8000/api/v1/internship/get?${queryString}`;
-
-        const response = await fetch(url, {
+  const fetchRecruiterInternships = async () => {
+    try {
+      const response = await fetch(
+        "http://localhost:8000/api/v1/internship/recruiter",
+        {
           method: "GET",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
-        });
-
-        const data = await response.json();
-        if (data.success && Array.isArray(data.internships)) {
-          setFilterInternships(data.internships);
-        } else {
-          setFilterInternships([]);
         }
-      } catch (error) {
-        console.error("Error fetching filtered internships:", error);
+      );
+      const data = await response.json();
+      if (data.success && Array.isArray(data.internships)) {
+        setRecruiterInternships(data.internships);
+      } else {
+        setRecruiterInternships([]);
       }
-    };
-
-    if (Object.keys(selectedFilters).length > 0) {
-      fetchFilteredInternships();
-    } else {
-      setFilterInternships(allInternships);
+    } catch (error) {
+      console.error("Error fetching recruiter internships:", error);
     }
-  }, [selectedFilters]);
+  };
+
+  useEffect(() => {
+    fetchInternships();
+    if (user?.role === "recruiter") {
+      fetchRecruiterInternships();
+    }
+  }, [dispatch, user]);
+
+  console.log("All Internships from Redux:", allInternships);
 
   return (
     <div className="bg-black text-white min-h-screen flex flex-col">
@@ -98,127 +85,61 @@ const Internships = () => {
         )}
       </div>
 
+      {/* Post Internship Modal */}
       {showPostInternship && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <PostInternship
             onClose={() => setShowPostInternship(false)}
             onSuccess={() => {
               fetchInternships();
+              fetchRecruiterInternships();
               setShowPostInternship(false);
             }}
           />
         </div>
       )}
 
-      <div className="container mx-auto flex gap-6 px-4">
-        <div className="w-1/5 p-6 rounded-lg border border-gray-700">
-          <h2 className="text-lg font-semibold text-blue-400 mb-4">
-            Filter Internships
+      {/* Recruiter's Internships */}
+      {user?.role === "recruiter" && recruiterInternships.length > 0 && (
+        <div className="container mx-auto px-4 pb-10">
+          <h2 className="text-2xl font-bold text-left text-green-400 mb-4">
+            Your Posted Internships
           </h2>
-          <FilterCard
-            selectedFilters={selectedFilters}
-            setSelectedFilters={setSelectedFilters}
-          />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {recruiterInternships.map((internship) => (
+              <LatestInternshipCards
+                key={internship._id}
+                internship={internship}
+              />
+            ))}
+          </div>
         </div>
+      )}
 
-        <div className="flex-1 overflow-y-auto pb-5">
-          {filterInternships.length <= 0 ? (
-            <div className="flex items-center justify-center h-full">
-              <p className="text-gray-400 text-xl font-medium">
-                No internships found. Try adjusting your filters.
-              </p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filterInternships.map((internship) => (
-                <div
-                  key={internship._id}
-                  className="relative p-6 rounded-lg shadow-lg bg-black text-white border border-blue-500 hover:bg-gray-800 transition duration-300"
-                >
-                  <button className="absolute top-4 right-4 bg-green-600 hover:bg-green-700 px-4 py-2 rounded-md">
-                    Apply Now
-                  </button>
-                  <div className="flex items-center justify-between mb-4">
-                    <p className="text-sm text-gray-400">
-                      {new Date(internship.createdAt).toDateString()}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-3 mb-4">
-                    <img
-                      src={internship?.company?.logo || profilePic}
-                      alt="Company Logo"
-                      className="w-12 h-12 rounded-full"
-                    />
-                    <div>
-                      <h1 className="font-semibold text-lg">
-                        {internship?.company?.name || "Unknown Company"}
-                      </h1>
-                      <p className="text-sm text-gray-400">
-                        {internship.location}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="mb-3">
-                    <h1 className="font-bold text-xl">{internship.title}</h1>
-                    <p className="text-sm text-gray-300 mt-1">
-                      {internship.description}
-                    </p>
-                  </div>
-                  <div className="flex flex-wrap gap-2 mt-3">
-                    <span className="px-2 py-1 bg-orange-400 text-black text-sm font-bold rounded-md">
-                      {internship.duration}
-                    </span>
-                    <span className="px-2 py-1 bg-blue-500 text-black text-sm font-bold rounded-md">
-                      ₹{internship.stipend}
-                    </span>
-                    <span
-                      className={`px-2 py-1 text-sm font-bold rounded-md ${
-                        internship.type === "Remote"
-                          ? "bg-yellow-500 text-black"
-                          : "bg-purple-700 text-white"
-                      }`}
-                    >
-                      {internship.type}
-                    </span>
-                  </div>
-                  <div className="mt-3">
-                    <p className="text-gray-300 text-sm font-semibold mb-2">
-                      Required Skills:
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      {internship.skills.map((skill, index) => (
-                        <span
-                          key={index}
-                          className="px-2 py-1 bg-gray-700 text-white text-xs rounded-md"
-                        >
-                          {skill}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2 mt-7">
-                    <Button
-                      onClick={() => {
-                        if (user?.role === "student") {
-                          navigate(`/internship/description/${internship._id}`);
-                        } else if (user?.role === "recruiter") {
-                          navigate(`/internship/details/${internship._id}`);
-                        }
-                      }}
-                      variant="outline"
-                      className="px-2 py-1 bg-blue-500 text-white text-sm font-bold rounded-md hover:bg-blue-600 cursor-pointer"
-                    >
-                      Details
-                    </Button>
-                    <Button className="px-2 py-1 bg-[#7209b7] text-white text-sm font-bold rounded-md hover:bg-purple-800">
-                      Save for later
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+      {/* All Internships */}
+      <div className="container mx-auto px-4 pb-10">
+        <h2 className="text-2xl font-semibold text-blue-400 mb-4">
+          All Internships
+        </h2>
+        {allInternships?.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+            {allInternships.map((internship) => (
+              <LatestInternshipCards
+                key={internship._id}
+                internship={internship}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center py-10">
+            <p className="text-gray-400 text-xl font-medium mb-2">
+              No internships found.
+            </p>
+            <p className="text-sm text-gray-500">
+              Try posting a new one or check your server data.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

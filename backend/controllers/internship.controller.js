@@ -1,5 +1,8 @@
 import { Internship } from "../models/internship.model.js"; // Adjust path if needed
 
+
+
+
 export const postInternship = async (req, res) => {
       try {
             const {
@@ -10,28 +13,20 @@ export const postInternship = async (req, res) => {
                   location,
                   type,
                   skills,
-                  recruiterId,
             } = req.body;
 
-            const userId = req.id; 
-            if (
-                  !title ||
-                  !description ||
-                  !duration ||
-                  !stipend ||
-                  !location ||
-                  !type ||
-                  !skills ||
-                  !recruiterId
-            ) {
+            const recruiterId = req.user.id; // Logged-in recruiter ID from auth middleware
+            console.log(recruiterId);
+            if (!title || !description || !duration || !stipend || !location || !type || !skills) {
                   return res.status(400).json({
                         message: "Please fill in all fields",
                         success: false,
                   });
             }
+
             const skillsArray = Array.isArray(skills)
                   ? skills
-                  : skills.split(",").map((skill) => skill.trim());
+                  : skills.split(",").map(skill => skill.trim());
 
             const internship = await Internship.create({
                   title,
@@ -42,7 +37,6 @@ export const postInternship = async (req, res) => {
                   type,
                   skills: skillsArray,
                   recruiter: recruiterId,
-                  created_by: userId,
             });
 
             return res.status(201).json({
@@ -52,35 +46,31 @@ export const postInternship = async (req, res) => {
             });
       } catch (error) {
             console.error("Error posting internship:", error);
-            return res
-                  .status(500)
-                  .json({ message: "Server error", success: false });
+            return res.status(500).json({
+                  message: "Server error",
+                  success: false,
+            });
       }
 };
 
 export const getAllInternships = async (req, res) => {
       try {
-            const keyword = req.query.keyword || "";
-            const query = {
-                  $or: [
-                        { title: { $regex: new RegExp(keyword, "i") } },
-                        { description: { $regex: new RegExp(keyword, "i") } },
-                  ],
-            };
-
-            const internships = await Internship.find(query)
-                  .populate({ path: "recruiter", select: "companyname email companyaddress companystatus" }) 
+            const internships = await Internship.find({})
+                  .populate({
+                        path: "recruiter",
+                        select: "companyname email companyaddress companystatus"
+                  })
                   .sort({ createdAt: -1 });
 
             if (!internships || internships.length === 0) {
                   return res.status(404).json({
-                        message: "No jobs found",
+                        message: "No internships found",
                         success: false,
                   });
             }
 
             return res.status(200).json({
-                  message: "Internships found",
+                  message: "Internships fetched successfully",
                   internships,
                   success: true,
             });
@@ -93,6 +83,7 @@ export const getAllInternships = async (req, res) => {
             });
       }
 };
+
 export const getInternshipById = async (req, res) => {
       try {
             const internshipId = req.params.id;
@@ -113,3 +104,34 @@ export const getInternshipById = async (req, res) => {
             console.log(error);
       }
 }
+export const getInternshipsByRecruiter = async (req, res) => {
+      try {
+            // Fetch the internships where the recruiter field matches the logged-in user's ID
+            const recruiterId = req.user.id; // Get the recruiter ID from the authenticated user
+            const internships = await Internship.find({ recruiter: recruiterId })
+                  .populate({
+                        path: "recruiter",
+                        select: "companyname email companyaddress companystatus", // Populate the recruiter fields you need
+                  })
+                  .sort({ createdAt: -1 }); // Sort by the most recent internships
+
+            if (!internships || internships.length === 0) {
+                  return res.status(404).json({
+                        message: "No internships found for this recruiter",
+                        success: false,
+                  });
+            }
+
+            return res.status(200).json({
+                  message: "Internships posted by recruiter",
+                  internships,
+                  success: true,
+            });
+      } catch (error) {
+            console.error("Error fetching internships:", error);
+            return res.status(500).json({
+                  message: "Server error",
+                  success: false,
+            });
+      }
+};

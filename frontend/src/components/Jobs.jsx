@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { setAllJobs } from "@/redux/jobSlice";
 import PostJob from "./recruiter/PostJob";
+
 const Jobs = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -114,12 +115,18 @@ const Jobs = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {filterJobs.map((job) => (
                 <div
-                  key={job.id}
+                  key={job._id}
                   className="relative p-6 rounded-lg shadow-lg bg-black text-white border border-blue-500 hover:bg-gray-800 cursor-pointer transition duration-300"
                 >
-                  <button className="absolute top-3 right-4 text-white bg-green-500 border-green-500 hover:bg-green-600 transition duration-300 ease-in-out px-4 py-2 rounded-md cursor-pointer">
-                    Apply Now
-                  </button>
+                  {/* Apply Now only for students */}
+                  {user?.role === "student" && (
+                    <button
+                      onClick={() => navigate(`/job/description/${job._id}`)}
+                      className="absolute top-3 right-4 text-white bg-green-500 border-green-500 hover:bg-green-600 transition duration-300 ease-in-out px-4 py-2 rounded-md cursor-pointer"
+                    >
+                      Apply Now
+                    </button>
+                  )}
 
                   <div className="flex items-center justify-between mb-4">
                     <p className="text-sm text-gray-400">
@@ -159,6 +166,7 @@ const Jobs = () => {
                       {job.salary} LPA
                     </span>
                   </div>
+
                   <div className="flex items-center gap-2 mt-7">
                     <Button
                       onClick={() => {
@@ -186,5 +194,4 @@ const Jobs = () => {
     </div>
   );
 };
-
 export default Jobs;

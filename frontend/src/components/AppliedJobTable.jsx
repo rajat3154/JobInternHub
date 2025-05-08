@@ -1,3 +1,4 @@
+// AppliedJobTable.jsx
 import React from "react";
 import {
   Table,
@@ -9,10 +10,10 @@ import {
   TableRow,
 } from "./ui/table";
 import { Badge } from "./ui/badge";
-import { useSelector } from "react-redux";
+import useGetAppliedJobs from "./hooks/useGetAppliedJobs"; // Adjust path if needed
 
 const AppliedJobTable = () => {
-  const { allAppliedJobs } = useSelector((store) => store.job);
+  const { appliedJobs, loading } = useGetAppliedJobs();
 
   return (
     <div>
@@ -31,14 +32,20 @@ const AppliedJobTable = () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {allAppliedJobs.length <= 0 ? (
+          {loading ? (
+            <TableRow>
+              <TableCell colSpan={4} className="text-center py-4 text-gray-500">
+                Loading...
+              </TableCell>
+            </TableRow>
+          ) : appliedJobs.length <= 0 ? (
             <TableRow>
               <TableCell colSpan={4} className="text-center py-4 text-gray-500">
                 You haven't applied to any jobs yet.
               </TableCell>
             </TableRow>
           ) : (
-            allAppliedJobs.map((appliedJob) => (
+            appliedJobs.map((appliedJob) => (
               <TableRow
                 key={appliedJob._id}
                 className="hover:bg-blue-700 transition-all duration-200"
@@ -50,20 +57,20 @@ const AppliedJobTable = () => {
                   {appliedJob.job?.title}
                 </TableCell>
                 <TableCell className="py-3 px-4">
-                  {appliedJob.job?.company}
+                  {appliedJob.job?.created_by?.companyname}
                 </TableCell>
                 <TableCell className="py-3 px-4 text-right">
-                    <Badge
-    className={`${
-      appliedJob?.status === "rejected"
-        ? "bg-red-400 text-white"
-        : appliedJob.status === "pending"
-        ? "bg-gray-400 text-white"
-        : "bg-green-400 text-white"
-    } py-1 px-3 rounded-full`}
-  >
-    {appliedJob.status.toUpperCase()}
-  </Badge>
+                  <Badge
+                    className={`${
+                      appliedJob?.status === "rejected"
+                        ? "bg-red-400 text-white"
+                        : appliedJob.status === "pending"
+                        ? "bg-gray-400 text-white"
+                        : "bg-green-400 text-white"
+                    } py-1 px-3 rounded-full`}
+                  >
+                    {appliedJob.status.toUpperCase()}
+                  </Badge>
                 </TableCell>
               </TableRow>
             ))

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useSelector } from "react-redux";
 import { Button } from "./ui/button";
 import {
   Bookmark,
@@ -15,6 +16,9 @@ import { motion } from "framer-motion";
 const Job = ({ job }) => {
   const [isSaved, setIsSaved] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+
+  // Get the current user from Redux
+  const user = useSelector((state) => state.auth.user);
 
   return (
     <motion.div
@@ -83,7 +87,6 @@ const Job = ({ job }) => {
           {job?.title}
         </h1>
 
-        {/* Description */}
         <p className="text-blue-100/70 leading-relaxed">{job?.description}</p>
 
         {/* Highlights */}
@@ -112,9 +115,13 @@ const Job = ({ job }) => {
             <span className="text-sm text-blue-100/60">Open Positions:</span>
             <span className="font-medium text-blue-50">{job?.position}</span>
           </div>
-          <Button className="bg-blue-500/90 hover:bg-blue-400 text-white rounded-xl px-6 py-4 shadow-lg shadow-blue-500/20 hover:shadow-blue-500/30 transition-all">
-            Apply Now
-          </Button>
+
+          {/* 👇 Only show if the user is a student */}
+          {user?.role === "student" && (
+            <Button className="bg-blue-500/90 hover:bg-blue-400 text-white rounded-xl px-6 py-4 shadow-lg shadow-blue-500/20 hover:shadow-blue-500/30 transition-all">
+              Apply Now
+            </Button>
+          )}
         </div>
       </div>
     </motion.div>

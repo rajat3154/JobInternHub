@@ -223,9 +223,9 @@ export const updateProfile = async (req, res) => {
             const { fullname, email, phonenumber, bio, skills } = req.body;
             const file = req.file;
 
-            console.log("Updating Profile for User ID:", req.id);
+            console.log("Updating Profile for User ID:", req.user.id);
 
-            const user = await Student.findById(req.id);
+            const user = await Student.findById(req.user.id);
             if (!user) {
                   return res.status(400).json({
                         message: "User not found",

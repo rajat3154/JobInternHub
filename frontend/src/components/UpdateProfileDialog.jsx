@@ -1,139 +1,166 @@
-import React from "react";
+import React, { useState } from "react";
+import { Loader2, ChevronRight } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+import { STUDENT_API_END_POINT } from "@/utils/constant";
+import { toast } from "sonner";
+import axios from "axios";
+import { setUser } from "@/redux/authSlice";
+import { motion } from "framer-motion";
 
 const UpdateProfileDialog = ({ open, setOpen }) => {
+  const dispatch = useDispatch();
+  const { user } = useSelector((store) => store.auth);
+  const [loading, setLoading] = useState(false);
+  const [input, setInput] = useState({
+    fullname: user?.fullname || "",
+    email: user?.email || "",
+    phonenumber: user?.phonenumber || "",
+    bio: user?.profile?.bio || "",
+    skills: user?.profile?.skills?.join(", ") || "",
+    file: null,
+  });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setInput((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0];
+    setInput((prev) => ({ ...prev, file }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const formData = new FormData();
+    formData.append("fullname", input.fullname);
+    formData.append("email", input.email);
+    formData.append("phonenumber", input.phonenumber);
+    formData.append("bio", input.bio);
+    formData.append("skills", input.skills);
+    if (input.file) formData.append("file", input.file);
+
+    try {
+      setLoading(true);
+      const res = await axios.post(
+        `${STUDENT_API_END_POINT}/profile/update`,
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+          withCredentials: true,
+        }
+      );
+
+      if (res.data.success) {
+        dispatch(setUser(res.data.user));
+        toast.success("Profile updated successfully!");
+        setOpen(false);
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to update profile");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm z-50 p-4">
-      <div className="bg-black p-8 rounded-xl shadow-2xl w-full max-w-2xl border-2 border-blue-500/50">
-        {/* Header */}
-        <div className="mb-6 pb-4 border-b border-blue-500/30">
-          <h2 className="text-2xl font-bold text-blue-400">Update Profile</h2>
-          <p className="text-sm text-gray-400 mt-1">
-            Keep your information updated
-          </p>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.95 }}
+        className="w-full max-w-md bg-gradient-to-br from-gray-900 to-gray-950 rounded-xl border border-gray-800 shadow-xl p-6"
+      >
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
+            Update Profile
+          </h2>
+          <button
+            onClick={() => setOpen(false)}
+            className="text-gray-400 hover:text-white transition-colors"
+            aria-label="Close dialog"
+          >
+            &times;
+          </button>
         </div>
 
-        {/* Form Fields */}
-        <form className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Name */}
-            <div className="space-y-2">
-              <label className="block text-sm font-semibold text-blue-300/90">
-                Full Name
-              </label>
-              <input
-                type="text"
-                placeholder="John Doe"
-                className="w-full px-4 py-3 bg-gray-800/70 border border-blue-500/30 rounded-lg 
-                         focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
-                         placeholder-gray-500 text-gray-100 transition-all"
-              />
-            </div>
-
-            {/* Email */}
-            <div className="space-y-2">
-              <label className="block text-sm font-semibold text-blue-300/90">
-                Email
-              </label>
-              <input
-                type="email"
-                placeholder="john@example.com"
-                className="w-full px-4 py-3 bg-gray-800/70 border border-blue-500/30 rounded-lg 
-                         focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
-                         placeholder-gray-500 text-gray-100 transition-all"
-              />
-            </div>
-
-            {/* Phone */}
-            <div className="space-y-2">
-              <label className="block text-sm font-semibold text-blue-300/90">
-                Phone Number
-              </label>
-              <input
-                type="tel"
-                placeholder="+1 234 567 890"
-                className="w-full px-4 py-3 bg-gray-800/70 border border-blue-500/30 rounded-lg 
-                         focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
-                         placeholder-gray-500 text-gray-100 transition-all"
-              />
-            </div>
-
-            {/* Skills */}
-            <div className="space-y-2">
-              <label className="block text-sm font-semibold text-blue-300/90">
-                Skills
-              </label>
-              <input
-                type="text"
-                placeholder="React, Node.js, Python"
-                className="w-full px-4 py-3 bg-gray-800/70 border border-blue-500/30 rounded-lg 
-                         focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
-                         placeholder-gray-500 text-gray-100 transition-all"
-              />
-            </div>
-          </div>
-
-          {/* Bio */}
-          <div className="space-y-2">
-            <label className="block text-sm font-semibold text-blue-300/90">
-              Bio
-            </label>
-            <textarea
-              rows="4"
-              placeholder="Describe your professional experience..."
-              className="w-full px-4 py-3 bg-gray-800/70 border border-blue-500/30 rounded-lg 
-                       focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
-                       placeholder-gray-500 text-gray-100 transition-all"
-            />
-          </div>
-
-          {/* Resume Upload */}
-          <div className="space-y-2">
-            <label className="block text-sm font-semibold text-blue-300/90">
-              Resume
-            </label>
-            <div className="flex items-center justify-center w-full bg-gray-800/70 border-2 border-dashed border-blue-500/30 rounded-lg p-6">
-              <div className="text-center">
-                <p className="text-sm text-gray-400">
-                  Drag and drop PDF file here
-                </p>
-                <p className="text-xs text-gray-500 mt-1">or</p>
-                <label
-                  className="cursor-pointer mt-1 inline-block px-4 py-2 bg-blue-500/20 text-blue-400 rounded-md 
-                                  hover:bg-blue-500/30 transition-colors text-sm"
-                >
-                  Browse Files
-                  <input
-                    type="file"
-                    accept="application/pdf"
-                    className="hidden"
-                  />
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {["fullname", "email", "phonenumber", "bio", "skills"].map(
+            (field, index) => (
+              <motion.div
+                key={field}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+                className="space-y-2"
+              >
+                <label className="text-sm font-medium text-gray-300">
+                  {field.charAt(0).toUpperCase() + field.slice(1)}*
                 </label>
-              </div>
-            </div>
-          </div>
+                <input
+                  name={field}
+                  type={field === "email" ? "email" : "text"}
+                  value={input[field]}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-3 py-2 text-sm text-white border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </motion.div>
+            )
+          )}
 
-          {/* Action Buttons */}
-          <div className="flex justify-end gap-4 pt-6 border-t border-blue-500/30">
-            <button
-              type="button"
-              onClick={() => setOpen(false)}
-              className="px-6 py-2.5 text-gray-300 bg-gray-700/50 rounded-lg 
-                       hover:bg-gray-700 transition-colors border border-gray-600"
-            >
-              Cancel
-            </button>
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="space-y-2"
+          >
+            <label className="text-sm font-medium text-gray-300">
+              Resume (PDF)
+            </label>
+            <div className="flex items-center gap-2">
+              <input
+                type="file"
+                name="file"
+                accept="application/pdf"
+                onChange={handleFileChange}
+                className="w-full text-sm text-gray-300 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-600/50 file:text-white hover:file:bg-blue-600/70"
+              />
+              {input.file && (
+                <span className="text-xs text-gray-400 truncate">
+                  {input.file.name}
+                </span>
+              )}
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+            className="pt-2"
+          >
             <button
               type="submit"
-              className="px-6 py-2.5 text-white bg-blue-500 rounded-lg 
-                       hover:bg-blue-600 transition-colors shadow-lg shadow-blue-500/20"
+              disabled={loading}
+              className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors"
             >
-              Save Changes
+              {loading ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Updating...
+                </>
+              ) : (
+                <>
+                  Update Profile <ChevronRight className="h-4 w-4" />
+                </>
+              )}
             </button>
-          </div>
+          </motion.div>
         </form>
-      </div>
+      </motion.div>
     </div>
   );
 };

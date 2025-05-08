@@ -4,23 +4,17 @@ import  {Recruiter}  from "../models/recruiter.model.js";
 
 export const postJob = async (req, res) => {
       try {
-            const {
-                  title,
-                  description,
-                  requirements,
-                  salary,
-                  location,
-                  jobType,
-                  experience,
-                  position
-            } = req.body;
+            // Destructure the job details from the request body
+            const { title, description, requirements, salary, location, jobType, experience, position } = req.body;
 
-            const recruiterId = req.user.id; // ✅ logged-in recruiter
-            console.log(recruiterId);
-            // ✅ Fetch recruiter details
-            const recruiter = await Recruiter
-            .findById(recruiterId);
+            // Get the recruiter ID from the logged-in user's information
+            const recruiterId = req.user.id; // Assume the user is a recruiter and has `id` field
+            console.log(recruiterId);  // For debugging: log recruiter ID
 
+            // Fetch recruiter details using the recruiter ID
+            const recruiter = await Recruiter.findById(recruiterId);
+
+            // If recruiter is not found, return an error message
             if (!recruiter) {
                   return res.status(404).json({
                         message: "Recruiter not found",
@@ -28,20 +22,21 @@ export const postJob = async (req, res) => {
                   });
             }
 
-            // ✅ Create job with company name and recruiter ID
+            // Create a new job post with the recruiter’s company name and recruiter ID
             const job = await Job.create({
                   title,
                   description,
-                  requirements: Array.isArray(requirements) ? requirements : [requirements],
-                  salary: Number(salary),
+                  requirements: Array.isArray(requirements) ? requirements : [requirements], // Ensure requirements are an array
+                  salary: Number(salary),  // Ensure salary is a number
                   location,
                   jobType,
                   experience,
                   position,
-                  company: recruiter.companyname, // ✅ Store company name directly
-                  created_by: recruiterId
+                  company: recruiter.companyname, // Store company name from the recruiter model
+                  created_by: recruiterId // Link the job post to the recruiter
             });
 
+            // Return a success response with the newly created job
             return res.status(201).json({
                   message: "Job posted successfully",
                   success: true,
@@ -49,10 +44,14 @@ export const postJob = async (req, res) => {
             });
 
       } catch (error) {
-            console.log(error);
-            return res.status(500).json({ message: "Server error", success: false });
+            console.error(error); // Log the error for debugging
+            return res.status(500).json({
+                  message: "Server error",
+                  success: false
+            });
       }
 };
+
 
 
 export const getAllJobs = async (req, res) => {

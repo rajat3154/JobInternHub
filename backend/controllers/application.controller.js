@@ -4,7 +4,7 @@ import { Application } from "../models/application.model.js";
 
 export const applyJob = async (req, res) => {
       try {
-            const userId = req.id;
+            const userId = req.user.id;
             const jobId = req.params.id;
             if (!jobId) {
                   return res.status(400).json({
@@ -45,7 +45,7 @@ export const applyJob = async (req, res) => {
 };
 export const getAppliedJobs = async (req, res, next) => {
       try {
-            const userId = req.user._id;
+            const userId = req.user.id;
 
             const applications = await Application.find({ applicant: userId })
                   .sort({ createdAt: -1 })
@@ -53,13 +53,13 @@ export const getAppliedJobs = async (req, res, next) => {
                         path: "job",
                         populate: {
                               path: "created_by",
-                              select: "company", // Fetch company name
+                              select: "companyname", // Fetch company name
                         },
                   });
 
             res.status(200).json({
                   success: true,
-                  application: applications,
+                  appliedJobs: applications, // ✅ Fix here
             });
       } catch (error) {
             console.log("Error in getAppliedJobs", error);
