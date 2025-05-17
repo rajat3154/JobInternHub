@@ -45,7 +45,7 @@ const StudentSignup = () => {
     formData.append("status", input.status);
 
    if (input.file) {
-     formData.append("profile", input.file); // ✅ Match Multer field name
+     formData.append("file", input.file); // ✅ Match Multer field name
    }
 
 
