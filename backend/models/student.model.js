@@ -1,30 +1,30 @@
 import mongoose from "mongoose"
-const studentSchema=new mongoose.Schema({
-      fullname:{
-            type:String,
-            required:true
+const studentSchema = new mongoose.Schema({
+      fullname: {
+            type: String,
+            required: true
       },
-      email:{
-            type:String,
-            required:true,
-            unique:true
+      email: {
+            type: String,
+            required: true,
+            unique: true
       },
-      phonenumber:{
-            type:Number,
-            required:true
+      phonenumber: {
+            type: Number,
+            required: true
       },
-      password:{
-            type:String,
-            required:true
+      password: {
+            type: String,
+            required: true
       },
-      role:{
-            type:String,
-            default:"student",
+      role: {
+            type: String,
+            default: "student",
       },
-      status:{
-            type:String,
-            enum:['fresher','experienced'],
-            required:true
+      status: {
+            type: String,
+            enum: ['fresher', 'experienced'],
+            required: true
       },
       profile: {
             bio: { type: String },
@@ -37,6 +37,6 @@ const studentSchema=new mongoose.Schema({
                   default: ""
             }
       },
-},{timestamps:true})
+}, { timestamps: true })
 
 export const Student = mongoose.model('Student', studentSchema);

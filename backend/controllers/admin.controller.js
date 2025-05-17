@@ -1,5 +1,5 @@
 // controllers/admin.controller.js
-import {Recruiter} from "../models/recruiter.model.js";
+import { Recruiter } from "../models/recruiter.model.js";
 import RecruiterRequest from "../models/recruiterrequest.model.js";
 import bcrypt from "bcryptjs";
 
@@ -36,13 +36,27 @@ export const approveRecruiter = async (req, res) => {
                   companystatus: request.companystatus || "Active",
                   role: "recruiter",
                   password: request.password,
+                  profile: {
+                        profilePhoto: request.profile?.profilePhoto || "" // Include profile photo
+                  }
             });
 
             await recruiter.save();
 
             await RecruiterRequest.findByIdAndDelete(req.params.id);
 
-            res.status(200).json({ success: true, message: "Recruiter approved and request removed" });
+            res.status(200).json({
+                  success: true,
+                  message: "Recruiter approved",
+                  recruiter: {
+                        _id: recruiter._id,
+                        companyname: recruiter.companyname,
+                        email: recruiter.email,
+                        profile: {
+                              profilePhoto: recruiter.profile?.profilePhoto || ""
+                        }
+                  }
+            });
       } catch (error) {
             console.error("Error approving recruiter:", error);
             res.status(500).json({ success: false, message: "Internal Server Error" });
@@ -52,7 +66,7 @@ export const approveRecruiter = async (req, res) => {
 
 export const rejectRecruiter = async (req, res) => {
       try {
-            await RecruiterRequest.findByIdAndUpdate(req.params.id, {
+            await RecruiterRequest.findByIdAndDelete(req.params.id, {
                   status: "rejected",
             });
             res.status(200).json({ success: true, message: "Recruiter rejected" });

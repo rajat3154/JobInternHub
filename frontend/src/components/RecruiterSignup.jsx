@@ -1,15 +1,15 @@
-import { setLoading } from "@/redux/authSlice";
-import { RECRUITER_API_END_POINT, USER_API_END_POINT } from "@/utils/constant";
-import axios from "axios";
 import React, { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { Link, useNavigate } from "react-router-dom";
-import Navbar from "./shared/Navbar";
-import { Label } from "./ui/label";
 import { Input } from "./ui/input";
+import { Label } from "./ui/label";
 import { Button } from "./ui/button";
-import { Loader2 } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 import { toast } from "sonner";
+import { RECRUITER_API_END_POINT } from "@/utils/constant";
+import { useDispatch, useSelector } from "react-redux";
+import { setLoading } from "@/redux/authSlice";
+import { Loader2, ChevronRight } from "lucide-react";
+import { motion } from "framer-motion";
 
 const RecruiterSignup = () => {
   const [input, setInput] = useState({
@@ -17,8 +17,9 @@ const RecruiterSignup = () => {
     email: "",
     cinnumber: "",
     companyaddress: "",
-    companystatus: "",
     password: "",
+    role: "recruiter",
+    file: null,
   });
 
   const { loading } = useSelector((store) => store.auth);
@@ -29,15 +30,24 @@ const RecruiterSignup = () => {
     setInput({ ...input, [e.target.name]: e.target.value });
   };
 
-  const submitHandler = async (e) => {
+  const changeFileHandler = (e) => {
+    setInput({ ...input, file: e.target.files[0] });
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
     const formData = new FormData();
     formData.append("companyname", input.companyname);
     formData.append("email", input.email);
     formData.append("cinnumber", input.cinnumber);
-    formData.append("companyaddress", input.companyaddress);
-    formData.append("companystatus", input.companystatus);
     formData.append("password", input.password);
+    formData.append("role", input.role);
+    formData.append("companyaddress", input.companyaddress);
+
+    if (input.file) {
+      formData.append("file", input.file);
+    }
 
     try {
       dispatch(setLoading(true));
@@ -46,138 +56,124 @@ const RecruiterSignup = () => {
         formData,
         {
           headers: {
-            "Content-Type": "application/json",
+            "Content-Type": "multipart/form-data",
           },
           withCredentials: true,
         }
       );
+
       if (res.data.success) {
-        // navigate("/login");
         toast.success(res.data.message);
+        navigate("/login");
       }
     } catch (error) {
-      console.log(error);
-      toast.error(error.response.data.message);
+      console.error("Signup error:", error);
+      toast.error(
+        error.response?.data?.message || "Signup failed. Please try again."
+      );
     } finally {
       dispatch(setLoading(false));
     }
   };
 
+  const fields = [
+    { label: "Company Name", name: "companyname", type: "text" },
+    { label: "Email", name: "email", type: "email" },
+    { label: "CIN Number", name: "cinnumber", type: "text" },
+    { label: "Company Address", name: "companyaddress", type: "text" },
+    { label: "Password", name: "password", type: "password" },
+  ];
+
   return (
-    <>
-      {/* <Navbar /> */}
-      {/* <div className="flex items-center justify-center bg-black min-h-screen p-4"> */}
-        <form
-          onSubmit={submitHandler}
-          className="w-full max-w-md bg-black bg-opacity-90 text-white border border-blue-600 rounded-lg shadow-lg p-6"
-        >
-          <h1 className="text-2xl font-bold mb-6 text-center text-blue-400">
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="w-full max-w-md bg-gradient-to-br from-gray-900 to-gray-950 rounded-xl shadow-xl border border-gray-800 p-8"
+      >
+        <div className="flex items-center justify-center mb-6">
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
             Recruiter Sign Up
           </h1>
+        </div>
 
-          <div className="mb-4">
-            <Label className="text-sm font-semibold">Company Name</Label>
+        <form onSubmit={handleSubmit} className="space-y-5">
+          {fields.map((field, idx) => (
+            <motion.div
+              key={field.name}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 * idx }}
+              className="space-y-2"
+            >
+              <Label className="text-gray-300">{field.label}*</Label>
+              <Input
+                type={field.type}
+                name={field.name}
+                value={input[field.name]}
+                onChange={changeEventHandler}
+                required
+                className="text-white border-gray-700 focus:border-blue-500 focus:ring-blue-500"
+              />
+            </motion.div>
+          ))}
+
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+            className="space-y-2"
+          >
+            <Label className="text-gray-300">Company Logo*</Label>
             <Input
-              type="text"
-              placeholder="Enter your company name"
-              value={input.companyname}
-              name="companyname"
-              onChange={changeEventHandler}
-              required
-              className="mt-1 w-full p-3 bg-gray-900 text-white rounded-lg border border-blue-600"
+              type="file"
+              accept="image/*"
+              onChange={changeFileHandler}
+              className="text-white border-gray-700 focus:border-blue-500 focus:ring-blue-500"
             />
-          </div>
+          </motion.div>
 
-          <div className="mb-4">
-            <Label className="text-sm font-semibold">Email</Label>
-            <Input
-              type="email"
-              placeholder="Enter your company email"
-              value={input.email}
-              name="email"
-              onChange={changeEventHandler}
-              required
-              className="mt-1 w-full p-3 bg-gray-900 text-white rounded-lg border border-blue-600"
-            />
-          </div>
-
-          <div className="mb-4">
-            <Label className="text-sm font-semibold">
-              Company Identification Number (CIN)
-            </Label>
-            <Input
-              type="number"
-              placeholder="Enter your company CIN"
-              value={input.cinnumber}
-              name="cinnumber"
-              onChange={changeEventHandler}
-              required
-              className="mt-1 w-full p-3 bg-gray-900 text-white rounded-lg border border-blue-600"
-            />
-          </div>
-
-          <div className="mb-4">
-            <Label className="text-sm font-semibold">Company Address</Label>
-            <Input
-              type="text"
-              placeholder="Enter your company address"
-              value={input.companyaddress}
-              name="companyaddress"
-              onChange={changeEventHandler}
-              required
-              className="mt-1 w-full p-3 bg-gray-900 text-white rounded-lg border border-blue-600"
-            />
-          </div>
-
-          <div className="mb-4">
-            <Label className="text-sm font-semibold">Company Status</Label>
-            <Input
-              type="text"
-              placeholder="Enter your company status (e.g., Active, Inactive)"
-              value={input.companystatus}
-              name="companystatus"
-              onChange={changeEventHandler}
-              required
-              className="mt-1 w-full p-3 bg-gray-900 text-white rounded-lg border border-blue-600"
-            />
-          </div>
-
-          <div className="mb-4">
-            <Label className="text-sm font-semibold">Password</Label>
-            <Input
-              type="password"
-              placeholder="Enter your password"
-              value={input.password}
-              name="password"
-              onChange={changeEventHandler}
-              required
-              className="mt-1 w-full p-3 bg-gray-900 text-white rounded-lg border border-blue-600"
-            />
-          </div>
-
-          {loading ? (
-            <Button className="w-full bg-blue-500 text-white py-2 rounded-lg flex items-center justify-center">
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Please Wait
-            </Button>
-          ) : (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.7 }}
+            className="pt-2"
+          >
             <Button
               type="submit"
-              className="w-full bg-blue-500 text-white py-2 rounded-lg"
+              className="w-full bg-blue-600 hover:bg-blue-700"
+              disabled={loading}
             >
-              Sign Up
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Signing up...
+                </>
+              ) : (
+                <>
+                  Sign Up <ChevronRight className="ml-2 h-4 w-4" />
+                </>
+              )}
             </Button>
-          )}
+          </motion.div>
 
-          <p className="mt-4 text-sm text-center text-white font-bold">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8 }}
+            className="text-center text-sm text-gray-400"
+          >
             Already have an account?{" "}
-            <Link to="/login" className="font-semibold text-blue-400">
+            <Link
+              to="/login"
+              className="font-medium text-blue-400 hover:underline"
+            >
               Login
             </Link>
-          </p>
+          </motion.div>
         </form>
-      {/* </div> */}
-    </>
+      </motion.div>
+    </div>
   );
 };
 

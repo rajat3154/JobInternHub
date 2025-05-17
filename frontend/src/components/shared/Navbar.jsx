@@ -15,7 +15,6 @@ const Navbar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  // Optional: Manually control popover state
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
   const logoutHandler = async () => {
@@ -23,6 +22,7 @@ const Navbar = () => {
       const res = await axios.get(`${USER_API_END_POINT}/logout`, {
         withCredentials: true,
       });
+
       if (res.data.success) {
         dispatch(setUser(null));
         navigate("/");
@@ -41,9 +41,9 @@ const Navbar = () => {
       <div className="flex items-center justify-between mx-auto max-w-7xl h-16 px-4">
         {/* Logo */}
         <div>
-          <h1 className="text-2xl font-bold text-white">
+          <Link to="/" className="text-2xl font-bold text-white">
             JobIntern<span className="text-[#3B82F6]">Hub</span>
-          </h1>
+          </Link>
         </div>
 
         {/* Navigation and User Actions */}
@@ -95,7 +95,6 @@ const Navbar = () => {
                     Internships
                   </Link>
                 </li>
-                
               </>
             )}
           </ul>
@@ -122,15 +121,17 @@ const Navbar = () => {
                 <div>
                   <Avatar className="w-8 h-8 rounded-full cursor-pointer border border-gray-500">
                     <AvatarImage
-                      src={user?.profile?.profilePhoto}
+                      src={
+                        user?.profile?.profilePhoto || "/default-profile.png"
+                      }
                       alt="Profile Picture"
                     />
                     <AvatarFallback>
-                      {user?.fullname
-                        ?.split(" ")
-                        .map((name) => name[0])
+                      {(user?.fullname || user?.companyname || "U")
+                        .split(" ")
+                        .map((word) => word[0])
                         .join("")
-                        .toUpperCase() || "U"}
+                        .toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
                 </div>
@@ -141,30 +142,34 @@ const Navbar = () => {
                 align="start"
                 className="w-64 p-4 bg-black border-gray-700 text-gray-300 rounded-lg absolute z-50 right-0"
               >
+                {/* User Info */}
                 <div className="flex items-center gap-4 mb-4">
                   <Avatar className="w-10 h-10 rounded-full border border-gray-500">
                     <AvatarImage
-                      src={user?.profile?.profilePhoto}
+                      src={
+                        user?.profile?.profilePhoto || "/default-profile.png"
+                      }
                       alt="Profile Picture"
                     />
                     <AvatarFallback>
-                      {user?.fullname
-                        ?.split(" ")
-                        .map((name) => name[0])
+                      {(user?.fullname || user?.companyname || "U")
+                        .split(" ")
+                        .map((word) => word[0])
                         .join("")
-                        .toUpperCase() || "U"}
+                        .toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
                   <div className="max-w-xs overflow-hidden">
                     <h4 className="font-medium text-lg text-white">
-                      {user?.fullname}
+                      {user?.role === "recruiter"
+                        ? user.companyname
+                        : user.fullname}
                     </h4>
-                    <p className="text-sm text-gray-400">
-                      {user?.profile?.bio}
-                    </p>
+                    <p className="text-sm text-gray-400">{user?.email}</p>
                   </div>
                 </div>
 
+                {/* Menu Options */}
                 <div className="space-y-2">
                   {user?.role === "student" && (
                     <div className="flex items-center gap-2 cursor-pointer">

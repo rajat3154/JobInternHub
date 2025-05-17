@@ -8,7 +8,7 @@ const isAuthenticated = async (req, res, next) => {
       try {
             // Retrieve token from cookies
             const token = req.cookies.token;
-
+            console.log(token)
             // Check if token exists
             if (!token) {
                   return res.status(401).json({
@@ -49,4 +49,12 @@ const isAuthenticated = async (req, res, next) => {
       }
 };
 
+
 export default isAuthenticated;
+
+export const isAdmin = (req, res, next) => {
+      if (req.user.role !== "admin") {
+            return res.status(403).json({ message: "Only admins can perform this action." });
+      }
+      next();
+};

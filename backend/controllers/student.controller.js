@@ -1,4 +1,4 @@
-import  {Recruiter}  from "../models/recruiter.model.js";
+import { Recruiter } from "../models/recruiter.model.js";
 import { Student } from "../models/student.model.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken"
@@ -7,8 +7,8 @@ import cloudinary from "../utils/cloudinary.js";
 export const sregister = async (req, res) => {
       try {
             const { fullname, email, phonenumber, password, role, status } = req.body;
-            console.log(fullname,email,phonenumber,password,role,status);
-          
+            console.log(fullname, email, phonenumber, password, role, status);
+
             if (!fullname || !email || !phonenumber || !password || !status || !role) {
                   return res.status(400).json({
                         message: "All fields are required",
@@ -17,14 +17,14 @@ export const sregister = async (req, res) => {
             }
             if (!req.file) {
                   return res.status(400).json({
-                        message: "Resume file is required",
+                        message: "Profile photo is required",
                         success: false
                   });
             }
             const file = req.file;
             const fileUri = getDataUri(file);
             const cloudResponse = await cloudinary.uploader.upload(fileUri.content);
-          
+
             if (role !== "student") {
                   return res.status(400).json({
                         message: "Invalid role",
@@ -32,7 +32,7 @@ export const sregister = async (req, res) => {
                   });
             }
 
-            
+
             const studentExists = await Student.findOne({ email });
             if (studentExists) {
                   return res.status(400).json({
@@ -47,7 +47,7 @@ export const sregister = async (req, res) => {
                   email,
                   phonenumber,
                   password: hashedPassword,
-                  role:'student',
+                  role: 'student',
                   status,
                   profile: {
                         profilePhoto: cloudResponse.secure_url,
@@ -111,7 +111,7 @@ export const login = async (req, res) => {
                         .cookie("token", token, {
                               maxAge: 24 * 60 * 60 * 1000,
                               httpOnly: true,
-                              secure: process.env.NODE_ENV === "production",
+                              secure: false,
                               sameSite: "lax",
                         })
                         .json({
@@ -173,6 +173,7 @@ export const login = async (req, res) => {
                               cinnumber: user.cinnumber,
                               role: user.role,
                               status: user.status,
+                              profile: user.profile,
                         };
 
             const welcomeMessage =
@@ -186,7 +187,7 @@ export const login = async (req, res) => {
                         maxAge: 24 * 60 * 60 * 1000,
                         httpOnly: true,
                         secure: process.env.NODE_ENV === "production",
-                        sameSite: "lax",
+                        sameSite: "Lax",
                   })
                   .json({
                         message: welcomeMessage,
@@ -203,8 +204,6 @@ export const login = async (req, res) => {
             });
       }
 };
-
-
 export const logout = async (req, res) => {
       try {
             return res.status(200).cookie("token", "", { maxAge: 0 }).json({
@@ -215,9 +214,6 @@ export const logout = async (req, res) => {
             console.log(error);
       }
 };
-
-
-
 export const updateProfile = async (req, res) => {
       try {
             const { fullname, email, phonenumber, bio, skills } = req.body;
@@ -286,3 +282,32 @@ export const isAdmin = (req, res, next) => {
       }
       next();
 };
+
+// controllers/studentController.js
+
+
+
+// DELETE /api/v1/students/:id
+export const deleteStudent = async (req, res) => {
+      try {
+            const studentId = req.params.id;
+
+            // Optional: Only admin can delete, check if user is admin
+            if (req.user.role !== "admin") {
+                  return res.status(403).json({ message: "Access denied. Admins only." });
+            }
+
+            const deletedStudent = await Student.findByIdAndDelete(studentId);
+
+            if (!deletedStudent) {
+                  return res.status(404).json({ message: "Student not found." });
+            }
+
+            res.status(200).json({ message: "Student deleted successfully." });
+      } catch (error) {
+            console.error("Error deleting student:", error);
+            res.status(500).json({ message: "Server error while deleting student." });
+      }
+};
+
+

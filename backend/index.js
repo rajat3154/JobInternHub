@@ -25,13 +25,13 @@ app.use(cors(corsOptions));
 
 const PORT = process.env.PORT || 3000;
 
-app.use("/api/v1", studentRoute); 
+app.use("/api/v1", studentRoute);
 app.use("/api/v1/job", jobRoute);
 app.use("/api/v1/application", applicationRoute);
 app.use("/api/v1/internship", internshipRoute);
-app.use("/api/v1/admin", adminRoute); 
+app.use("/api/v1/admin", adminRoute);
 
 app.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);
-      connectDB(); 
+      connectDB();
 });

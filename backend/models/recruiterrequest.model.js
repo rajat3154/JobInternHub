@@ -33,6 +33,12 @@ const recruiterRequestSchema = new mongoose.Schema(
                   enum: ["pending", "approved", "rejected"],
                   default: "pending",
             },
+            profile: {
+                  profilePhoto: {
+                        type: String,
+                        default: ""
+                  }
+            },
       },
       { timestamps: true }
 );
