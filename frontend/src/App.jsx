@@ -16,6 +16,8 @@ import InternshipDetails from "./components/InternshipDetails";
 import Notifications from "./components/Notifications";
 import Admin from "./components/Admin";
 
+import ChatHome from "./components/chat/ChatHome";
+
 
 
 const appRouter = createBrowserRouter([
@@ -76,6 +78,11 @@ const appRouter = createBrowserRouter([
     path: "/admin",
     element: <Admin />,
   },
+  {
+    path: "/messages",
+    element: <ChatHome />,
+  },
+
  
 ]);
 function App() {

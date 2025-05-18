@@ -259,17 +259,22 @@ export const updateProfile = async (req, res) => {
 };
 export const getAllStudents = async (req, res) => {
       try {
-            const students = await Student.find().sort({ createdAt: -1 });
+            const students = await Student.find({}, {
+                  password: 0, // Exclude password from response
+                  __v: 0,     // Exclude version field
+            });
 
             return res.status(200).json({
+                  message: "Students fetched successfully",
                   success: true,
-                  students,
+                  data: students
             });
       } catch (error) {
             console.error("Error fetching students:", error);
             return res.status(500).json({
+                  message: "Error fetching students",
                   success: false,
-                  message: "Failed to fetch students",
+                  error: error.message
             });
       }
 };
@@ -310,4 +315,12 @@ export const deleteStudent = async (req, res) => {
       }
 };
 
-
+export const getOtherUsers = async (req, res) => {
+      try {
+            const loggedInUserId = req.id;
+            const otherUsers = await User.find({ _id: { $ne: loggedInUserId } }).select("-password");
+            return res.status(200).json(otherUsers);
+      } catch (error) {
+            console.log(error);
+      }
+  }

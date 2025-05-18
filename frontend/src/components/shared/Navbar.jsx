@@ -95,6 +95,14 @@ const Navbar = () => {
                     Internships
                   </Link>
                 </li>
+                <li>
+                  <Link
+                    to="/messages"
+                    className="hover:text-white transition duration-300 cursor-pointer"
+                  >
+                    Messages
+                  </Link>
+                </li>
               </>
             )}
           </ul>

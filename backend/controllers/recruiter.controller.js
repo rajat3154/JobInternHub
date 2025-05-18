@@ -66,17 +66,22 @@ export const recregister = async (req, res) => {
 };
 export const getAllRecruiters = async (req, res) => {
       try {
-            const recruiters = await Recruiter.find().sort({ createdAt: -1 });
+            const recruiters = await Recruiter.find({}, {
+                  password: 0, // Exclude password from response
+                  __v: 0,     // Exclude version field
+            });
 
             return res.status(200).json({
+                  message: "Recruiters fetched successfully",
                   success: true,
-                  recruiters,
+                  data: recruiters
             });
       } catch (error) {
             console.error("Error fetching recruiters:", error);
             return res.status(500).json({
+                  message: "Error fetching recruiters",
                   success: false,
-                  message: "Failed to fetch recruiters",
+                  error: error.message
             });
       }
 };
