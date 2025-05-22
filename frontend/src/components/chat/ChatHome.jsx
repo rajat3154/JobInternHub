@@ -19,12 +19,21 @@ const ChatHome = () => {
   const { user } = useSelector((store) => store.auth);
   const navigate = useNavigate();
   const [unreadCounts, setUnreadCounts] = useState({});
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (!user) {
       navigate("/login");
     }
-  }, [user, navigate]);
+
+    // Check for selected user in localStorage
+    const selectedUser = JSON.parse(localStorage.getItem('selectedUser'));
+    if (selectedUser) {
+      dispatch(setSelectedUser(selectedUser));
+      // Clear localStorage after setting the user
+      localStorage.removeItem('selectedUser');
+    }
+  }, [user, navigate, dispatch]);
 
   return (
     <div className="min-h-screen bg-black p-6">

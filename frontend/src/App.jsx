@@ -1,4 +1,3 @@
-
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import './App.css'
 import Signup from "./components/auth/Signup";
@@ -15,10 +14,7 @@ import InternshipDescription from "./components/InternshipDescription";
 import InternshipDetails from "./components/InternshipDetails";
 import Notifications from "./components/Notifications";
 import Admin from "./components/Admin";
-
 import ChatHome from "./components/chat/ChatHome";
-
-
 
 const appRouter = createBrowserRouter([
   {
@@ -37,7 +33,10 @@ const appRouter = createBrowserRouter([
     path: "/profile",
     element: <Profile />,
   },
-
+  {
+    path: "/profile/:userType/:userId",
+    element: <Profile />,
+  },
   {
     path: "/jobs",
     element: <Jobs />,
@@ -82,9 +81,8 @@ const appRouter = createBrowserRouter([
     path: "/messages",
     element: <ChatHome />,
   },
-
- 
 ]);
+
 function App() {
   return (
     <>
@@ -92,4 +90,5 @@ function App() {
     </>
   );
 }
+
 export default App;

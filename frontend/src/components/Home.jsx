@@ -14,9 +14,15 @@ const Home = () => {
     <div className="bg-black text-white">
       <Navbar />
       <HeroSection query={query} setQuery={setQuery} />
-      <CategoryCarousel setQuery={setQuery} /> {/* 🟢 Pass setQuery here */}
-      <LatestJobs query={query} />
-      <LatestInternships query={query} />
+      <CategoryCarousel setQuery={setQuery} />
+      <div className="container mx-auto px-4 py-8">
+        <div className="grid grid-cols-1 gap-8">
+          <div>
+            <LatestJobs query={query} />
+            <LatestInternships query={query} />
+          </div>
+        </div>
+      </div>
       <Footer />
     </div>
   );

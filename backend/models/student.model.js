@@ -26,6 +26,22 @@ const studentSchema = new mongoose.Schema({
             enum: ['fresher', 'experienced'],
             required: true
       },
+      following: [{
+            type: mongoose.Schema.Types.ObjectId,
+            refPath: 'followingType'
+      }],
+      followingType: [{
+            type: String,
+            enum: ['Student', 'Recruiter']
+      }],
+      followers: [{
+            type: mongoose.Schema.Types.ObjectId,
+            refPath: 'followersType'
+      }],
+      followersType: [{
+            type: String,
+            enum: ['Student', 'Recruiter']
+      }],
       profile: {
             bio: { type: String },
             skills: [{ type: String }],
