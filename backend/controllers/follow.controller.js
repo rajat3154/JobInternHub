@@ -16,6 +16,12 @@ export const followUser = async (req, res) => {
         const FollowerModel = followerType === 'Student' ? Student : Recruiter;
         const FollowingModel = followingType === 'Student' ? Student : Recruiter;
 
+        // Get the user being followed to get their name
+        const userToFollow = await FollowingModel.findById(followingId);
+        if (!userToFollow) {
+            throw new ApiError(404, "User to follow not found");
+        }
+
         // Update follower's following list
         await FollowerModel.findByIdAndUpdate(
             followerId,
@@ -39,7 +45,9 @@ export const followUser = async (req, res) => {
         );
 
         return res.status(200).json(
-            new ApiResponse(200, {}, "Successfully followed user")
+            new ApiResponse(200, { 
+                userName: userToFollow.fullname || userToFollow.companyname 
+            }, `Successfully followed ${userToFollow.fullname || userToFollow.companyname}`)
         );
     } catch (error) {
         throw new ApiError(500, error.message || "Error following user");
@@ -59,6 +67,12 @@ export const unfollowUser = async (req, res) => {
         const FollowerModel = followerType === 'Student' ? Student : Recruiter;
         const FollowingModel = followingType === 'Student' ? Student : Recruiter;
 
+        // Get the user being unfollowed to get their name
+        const userToUnfollow = await FollowingModel.findById(followingId);
+        if (!userToUnfollow) {
+            throw new ApiError(404, "User to unfollow not found");
+        }
+
         // Update follower's following list
         await FollowerModel.findByIdAndUpdate(
             followerId,
@@ -82,7 +96,9 @@ export const unfollowUser = async (req, res) => {
         );
 
         return res.status(200).json(
-            new ApiResponse(200, {}, "Successfully unfollowed user")
+            new ApiResponse(200, { 
+                userName: userToUnfollow.fullname || userToUnfollow.companyname 
+            }, `Successfully unfollowed ${userToUnfollow.fullname || userToUnfollow.companyname}`)
         );
     } catch (error) {
         throw new ApiError(500, error.message || "Error unfollowing user");

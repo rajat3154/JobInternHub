@@ -150,6 +150,23 @@ const Profile = () => {
     navigate('/messages');
   };
 
+  const handleFollowCountChange = (isFollowing) => {
+    setFollowers(prevFollowers => {
+      if (isFollowing) {
+        // Add current user to followers list
+        return [...prevFollowers, {
+          _id: currentUser._id,
+          fullname: currentUser.fullname || currentUser.companyname,
+          role: currentUser.role,
+          profile: { profilePhoto: currentUser.profile?.profilePhoto }
+        }];
+      } else {
+        // Remove current user from followers list
+        return prevFollowers.filter(follower => follower._id !== currentUser._id);
+      }
+    });
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-black">
@@ -204,9 +221,12 @@ const Profile = () => {
                       {!isOwnProfile && (
                         <>
                           <FollowButton
-                            userId={profileUser?._id}
-                            userType={profileUser?.role}
-                            className="flex-1 sm:flex-none"
+                            userId={profileUser._id}
+                            userType={profileUser.role}
+                            onFollowSuccess={() => {
+                              // Any additional success handling
+                            }}
+                            onFollowCountChange={handleFollowCountChange}
                           />
                           <Button
                             variant="outline"

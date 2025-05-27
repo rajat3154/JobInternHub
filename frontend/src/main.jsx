@@ -17,6 +17,17 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         </PersistGate>
       </Provider>
     </AuthProvider>
-    <Toaster />
+    <Toaster 
+      position="bottom-right"
+      toastOptions={{
+        style: {
+          background: '#000000',
+          color: '#ffffff',
+          border: '1px solid #333333',
+        },
+        className: 'toast-message',
+        duration: 3000,
+      }}
+    />
   </React.StrictMode>,
 )

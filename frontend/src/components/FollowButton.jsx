@@ -6,7 +6,7 @@ import { Loader2, UserPlus, UserCheck } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 
-const FollowButton = ({ userId, userType, onFollowSuccess, className, size = "sm" }) => {
+const FollowButton = ({ userId, userType, onFollowSuccess, className, size = "sm", onFollowCountChange }) => {
     const [isFollowing, setIsFollowing] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const { user } = useAuth();
@@ -64,7 +64,15 @@ const FollowButton = ({ userId, userType, onFollowSuccess, className, size = "sm
             }
 
             setIsFollowing(!isFollowing);
-            toast.success(isFollowing ? 'Unfollowed successfully' : 'Followed successfully');
+            toast.success(isFollowing 
+                ? `Unfollowed ${response.data.data.userName} successfully` 
+                : `Followed ${response.data.data.userName} successfully`);
+            
+            // Call the callback to update follower count
+            if (onFollowCountChange) {
+                onFollowCountChange(!isFollowing);
+            }
+            
             onFollowSuccess?.();
         } catch (error) {
             console.error('Error toggling follow:', error);
