@@ -2,6 +2,8 @@ import { Student } from "../models/student.model.js";
 import { Recruiter } from "../models/recruiter.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
+import { getIO } from "../socket/index.js";
+import { createNotification } from "../controllers/notificationController.js";
 
 export const followUser = async (req, res) => {
     try {
@@ -20,6 +22,12 @@ export const followUser = async (req, res) => {
         const userToFollow = await FollowingModel.findById(followingId);
         if (!userToFollow) {
             throw new ApiError(404, "User to follow not found");
+        }
+
+        // Get the follower's details
+        const follower = await FollowerModel.findById(followerId);
+        if (!follower) {
+            throw new ApiError(404, "Follower not found");
         }
 
         // Update follower's following list
@@ -44,12 +52,22 @@ export const followUser = async (req, res) => {
             }
         );
 
+        // Create notification in database
+        await createNotification(
+            followingId,
+            followerId,
+            'follow',
+            'New Follower',
+            `${follower.fullname || follower.companyname} started following you`
+        );
+
         return res.status(200).json(
             new ApiResponse(200, { 
                 userName: userToFollow.fullname || userToFollow.companyname 
             }, `Successfully followed ${userToFollow.fullname || userToFollow.companyname}`)
         );
     } catch (error) {
+        console.error('Error in followUser:', error);
         throw new ApiError(500, error.message || "Error following user");
     }
 };
