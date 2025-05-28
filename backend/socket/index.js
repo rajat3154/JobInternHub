@@ -18,7 +18,8 @@ const initializeSocket = (server) => {
       origin: process.env.FRONTEND_URL || "http://localhost:5173",
       methods: ["GET", "POST"],
       credentials: true
-    }
+    },
+    transports: ['websocket', 'polling']
   });
 
   // Authentication middleware
@@ -59,8 +60,9 @@ const initializeSocket = (server) => {
     console.log('Socket ID:', socket.id);
 
     // Join user's personal room for notifications
-    socket.join(socket.user._id.toString());
-    console.log('User joined their notification room:', socket.user._id.toString());
+    const userRoom = socket.user._id.toString();
+    socket.join(userRoom);
+    console.log('User joined their notification room:', userRoom);
 
     // Handle follow event
     socket.on('follow', async (data) => {
@@ -104,9 +106,15 @@ const initializeSocket = (server) => {
       }
     });
 
+    // Handle disconnect
     socket.on('disconnect', () => {
       console.log('User disconnected:', socket.user._id);
       console.log('Socket ID:', socket.id);
+    });
+
+    // Handle errors
+    socket.on('error', (error) => {
+      console.error('Socket error:', error);
     });
   });
 

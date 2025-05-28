@@ -1,5 +1,7 @@
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
+import { Student } from "../models/student.model.js";
+import { Recruiter } from "../models/recruiter.model.js";
 
 dotenv.config();
 
@@ -8,7 +10,8 @@ const isAuthenticated = async (req, res, next) => {
       try {
             // Retrieve token from cookies
             const token = req.cookies.token;
-            console.log(token)
+            console.log('Token:', token);
+            
             // Check if token exists
             if (!token) {
                   return res.status(401).json({
@@ -19,6 +22,7 @@ const isAuthenticated = async (req, res, next) => {
 
             // Verify the token
             const decoded = jwt.verify(token, process.env.SECRET_KEY);
+            console.log('Decoded token:', decoded);
 
             // Ensure the decoded token has the required userId
             if (!decoded || !decoded.userId) {
@@ -28,14 +32,26 @@ const isAuthenticated = async (req, res, next) => {
                   });
             }
 
-            // Attach the user info to the request
-            req.user = {
-                  id: decoded.userId,
-                  role: decoded.role, // Assuming role exists in the token
-            };
+            // Find user in database
+            let user = await Student.findById(decoded.userId);
+            if (!user) {
+                  user = await Recruiter.findById(decoded.userId);
+            }
 
-            // Debug log for verification
-            console.log("Authenticated User:", req.user);
+            if (!user) {
+                  return res.status(401).json({
+                        message: "User not found",
+                        success: false,
+                  });
+            }
+
+            // Attach the user to the request
+            req.user = user;
+            console.log("Authenticated User:", {
+                  id: user._id,
+                  role: user.role,
+                  type: user.constructor.modelName
+            });
 
             // Proceed to the next middleware or route handler
             next();
@@ -48,7 +64,6 @@ const isAuthenticated = async (req, res, next) => {
             });
       }
 };
-
 
 export default isAuthenticated;
 

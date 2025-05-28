@@ -8,6 +8,7 @@ import { createNotification } from "../controllers/notificationController.js";
 export const followUser = async (req, res) => {
     try {
         const { followerId, followingId, followerType, followingType } = req.body;
+        console.log('Follow request received:', { followerId, followingId, followerType, followingType });
 
         // Validate input
         if (!followerId || !followingId || !followerType || !followingType) {
@@ -23,12 +24,14 @@ export const followUser = async (req, res) => {
         if (!userToFollow) {
             throw new ApiError(404, "User to follow not found");
         }
+        console.log('User to follow found:', userToFollow.fullname || userToFollow.companyname);
 
         // Get the follower's details
         const follower = await FollowerModel.findById(followerId);
         if (!follower) {
             throw new ApiError(404, "Follower not found");
         }
+        console.log('Follower found:', follower.fullname || follower.companyname);
 
         // Update follower's following list
         await FollowerModel.findByIdAndUpdate(
@@ -53,13 +56,20 @@ export const followUser = async (req, res) => {
         );
 
         // Create notification in database
-        await createNotification(
+        console.log('Creating notification...');
+        const notification = await createNotification(
             followingId,
             followerId,
             'follow',
             'New Follower',
             `${follower.fullname || follower.companyname} started following you`
         );
+        console.log('Notification created:', notification);
+
+        // Emit socket event
+        const io = getIO();
+        console.log('Emitting socket event to user:', followingId);
+        io.to(followingId.toString()).emit('newNotification', notification);
 
         return res.status(200).json(
             new ApiResponse(200, { 

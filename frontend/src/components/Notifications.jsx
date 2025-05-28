@@ -33,14 +33,22 @@ const Notifications = () => {
         return prev;
       }
       console.log("Adding new notification to state");
+      // Play notification sound
+      const audio = new Audio('/notification-sound.mp3');
+      audio.play().catch(err => console.log('Error playing sound:', err));
+      // Show toast
+      toast.success("New notification received!");
+      // Add new notification at the beginning of the array
       return [notification, ...prev];
     });
-    toast.success("New notification received!");
   }, []);
 
   // Socket event handling
   useEffect(() => {
-    if (!socket) return;
+    if (!socket) {
+      console.log("Socket not available");
+      return;
+    }
 
     console.log("Setting up socket listeners");
     
