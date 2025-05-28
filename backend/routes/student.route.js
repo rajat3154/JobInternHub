@@ -15,20 +15,21 @@ router.route("/login").post(login);
 router.route("/logout").get(logout);
 router.route("/check-auth").get(isAuthenticated, async (req, res) => {
     try {
-        // Get the token from the request
-        const token = req.cookies.token;
-        
+        const user = await Student.findById(req.user.id).select("-password");
+        if (!user) {
+            return res.status(401).json({
+                success: false,
+                message: "User not found"
+            });
+        }
         return res.status(200).json({
             success: true,
-            data: {
-                user: req.user,
-                token: token
-            }
+            data: user
         });
     } catch (error) {
         return res.status(500).json({
             success: false,
-            message: error.message || "Error checking authentication"
+            message: "Error checking authentication"
         });
     }
 });

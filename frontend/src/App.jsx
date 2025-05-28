@@ -15,8 +15,6 @@ import InternshipDetails from "./components/InternshipDetails";
 import Notifications from "./components/Notifications";
 import Admin from "./components/Admin";
 import ChatHome from "./components/chat/ChatHome";
-import { SocketProvider } from "./context/SocketContext";
-import { AuthProvider } from "./context/AuthContext";
 
 const appRouter = createBrowserRouter([
   {
@@ -87,11 +85,9 @@ const appRouter = createBrowserRouter([
 
 function App() {
   return (
-    <AuthProvider>
-      <SocketProvider>
-        <RouterProvider router={appRouter} />
-      </SocketProvider>
-    </AuthProvider>
+    <>
+      <RouterProvider router={appRouter} />
+    </>
   );
 }
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState } from "react";
 import { Button } from "./ui/button";
 import {
   Bell,
@@ -7,200 +7,46 @@ import {
   Briefcase,
   X,
   AlertCircle,
-  UserPlus,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import axios from "axios";
-import { useSocket } from "../context/SocketContext";
-import { toast } from "react-hot-toast";
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 const Notifications = () => {
-  const [notifications, setNotifications] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const socket = useSocket();
+  const [notifications, setNotifications] = useState([
+    {
+      id: 1,
+      title: "New Job Match!",
+      message: "Senior React Developer at TechCorp matches your profile",
+      timestamp: "2m ago",
+      type: "job",
+      read: false,
+    },
+    {
+      id: 2,
+      title: "Application Update",
+      message: "Your application to DesignCo has moved to interview stage",
+      timestamp: "1h ago",
+      type: "application",
+      read: false,
+    },
+    {
+      id: 3,
+      title: "System Alert",
+      message: "Complete your profile to increase job matches by 40%",
+      timestamp: "4h ago",
+      type: "system",
+      read: true,
+    },
+  ]);
 
-  // Memoize the notification handler to prevent duplicate listeners
-  const handleNewNotification = useCallback((notification) => {
-    console.log("Received new notification:", notification);
-    setNotifications((prev) => {
-      // Check if notification already exists by ID
-      const exists = prev.some(n => n._id === notification._id);
-      if (exists) {
-        console.log("Notification already exists, not adding");
-        return prev;
-      }
-      console.log("Adding new notification to state");
-      // Play notification sound
-      const audio = new Audio('/notification-sound.mp3');
-      audio.play().catch(err => console.log('Error playing sound:', err));
-      // Show toast
-      toast.success("New notification received!");
-      // Add new notification at the beginning of the array
-      return [notification, ...prev];
-    });
-  }, []);
-
-  // Socket event handling
-  useEffect(() => {
-    if (!socket) {
-      console.log("Socket not available");
-      return;
-    }
-
-    console.log("Setting up socket listeners");
-    
-    // Remove any existing listeners
-    socket.off("newNotification");
-    
-    // Add new notification listener
-    socket.on("newNotification", handleNewNotification);
-
-    // Cleanup
-    return () => {
-      console.log("Cleaning up socket listeners");
-      socket.off("newNotification", handleNewNotification);
-    };
-  }, [socket, handleNewNotification]);
-
-  // Initial data fetch
-  useEffect(() => {
-    fetchNotifications();
-  }, []);
-
-  const fetchNotifications = async () => {
-    try {
-      console.log("Fetching notifications...");
-      setLoading(true);
-      setError(null);
-      
-      const response = await axios.get(`${API_BASE_URL}/api/notifications`, {
-        withCredentials: true,
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        }
-      });
-
-      console.log("Fetched notifications response:", response);
-      
-      if (response.data && Array.isArray(response.data)) {
-        // Remove any duplicate notifications by ID
-        const uniqueNotifications = response.data.reduce((acc, current) => {
-          const exists = acc.find(item => item._id === current._id);
-          if (!exists) {
-            acc.push(current);
-          }
-          return acc;
-        }, []);
-        
-        console.log("Setting unique notifications:", uniqueNotifications);
-        setNotifications(uniqueNotifications);
-      } else {
-        console.error("Invalid notifications data format:", response.data);
-        setError("Invalid response format from server");
-        toast.error("Failed to load notifications");
-      }
-    } catch (error) {
-      console.error("Error fetching notifications:", error);
-      if (error.response) {
-        console.error("Error response:", error.response.data);
-        setError(error.response.data.message || "Failed to fetch notifications");
-      } else {
-        setError("Failed to connect to server");
-      }
-      toast.error("Failed to fetch notifications");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const markAsRead = async (id) => {
-    try {
-      await axios.patch(`${API_BASE_URL}/api/notifications/${id}/read`, {}, {
-        withCredentials: true,
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        }
-      });
-      setNotifications(
-        notifications.map((n) => (n._id === id ? { ...n, read: true } : n))
-      );
-      toast.success("Marked as read");
-    } catch (error) {
-      console.error("Error marking notification as read:", error);
-      toast.error("Failed to mark notification as read");
-    }
-  };
-
-  const clearAll = async () => {
-    try {
-      await axios.delete(`${API_BASE_URL}/api/notifications/clear-all`, {
-        withCredentials: true,
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        }
-      });
-      setNotifications([]);
-      toast.success("All notifications cleared");
-    } catch (error) {
-      console.error("Error clearing notifications:", error);
-      toast.error("Failed to clear notifications");
-    }
-  };
-
-  const getNotificationIcon = (type) => {
-    switch (type) {
-      case "job":
-        return <Briefcase className="h-6 w-6 text-blue-400" />;
-      case "application":
-        return <Zap className="h-6 w-6 text-green-400" />;
-      case "follow":
-        return <UserPlus className="h-6 w-6 text-purple-400" />;
-      default:
-        return <AlertCircle className="h-6 w-6 text-yellow-400" />;
-    }
-  };
-
-  const formatTimestamp = (timestamp) => {
-    const date = new Date(timestamp);
-    const now = new Date();
-    const diffInSeconds = Math.floor((now - date) / 1000);
-
-    if (diffInSeconds < 60) return `${diffInSeconds}s ago`;
-    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
-    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
-    return `${Math.floor(diffInSeconds / 86400)}d ago`;
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-black text-white flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500 mx-auto mb-4"></div>
-          <p className="text-gray-400">Loading notifications...</p>
-        </div>
-      </div>
+  const markAsRead = (id) => {
+    setNotifications(
+      notifications.map((n) => (n.id === id ? { ...n, read: true } : n))
     );
-  }
+  };
 
-  if (error) {
-    return (
-      <div className="min-h-screen bg-black text-white flex items-center justify-center">
-        <div className="text-center">
-          <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-          <p className="text-red-500 mb-4">{error}</p>
-          <Button onClick={fetchNotifications} variant="outline">
-            Try Again
-          </Button>
-        </div>
-      </div>
-    );
-  }
+  const clearAll = () => {
+    setNotifications([]);
+  };
 
   return (
     <div className="min-h-screen bg-black text-white py-12 px-4 sm:px-6 lg:px-8">
@@ -223,15 +69,13 @@ const Notifications = () => {
               Notifications
             </h1>
           </div>
-          {notifications.length > 0 && (
-            <Button
-              onClick={clearAll}
-              variant="ghost"
-              className="text-gray-400 hover:text-white transition-colors"
-            >
-              Clear All
-            </Button>
-          )}
+          <Button
+            onClick={clearAll}
+            variant="ghost"
+            className="text-gray-400 hover:text-white transition-colors"
+          >
+            Clear All
+          </Button>
         </motion.div>
 
         {/* Notifications List */}
@@ -245,52 +89,65 @@ const Notifications = () => {
               No new notifications
             </motion.div>
           ) : (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="space-y-4"
-            >
-              {notifications.map((notification) => (
-                <motion.div
-                  key={notification._id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  className={`p-4 rounded-lg border ${
+            <motion.ul className="space-y-4">
+              {notifications.map((notification, index) => (
+                <motion.li
+                  key={notification.id}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ delay: index * 0.1, duration: 0.3 }}
+                  className={`group relative p-6 rounded-xl backdrop-blur-lg border ${
                     notification.read
-                      ? "border-gray-700 bg-gray-800/50"
-                      : "border-purple-500/50 bg-purple-900/20"
-                  }`}
+                      ? "border-gray-800 bg-gray-900/30"
+                      : "border-purple-500/30 bg-purple-900/10"
+                  } transition-all hover:bg-gray-800/20`}
                 >
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-start gap-3">
-                      {getNotificationIcon(notification.type)}
-                      <div>
-                        <p className="font-medium text-white">
-                          {notification.title}
-                        </p>
-                        <p className="text-gray-400 mt-1">
-                          {notification.message}
-                        </p>
-                        <p className="text-gray-500 text-sm mt-2">
-                          {formatTimestamp(notification.createdAt)}
-                        </p>
-                      </div>
+                  {/* Unread Indicator */}
+                  {!notification.read && (
+                    <div className="absolute top-4 right-4 h-2 w-2 bg-green-400 rounded-full animate-pulse" />
+                  )}
+
+                  <div className="flex items-start gap-4">
+                    <div className="flex-shrink-0">
+                      {notification.type === "job" ? (
+                        <Briefcase className="h-6 w-6 text-blue-400" />
+                      ) : notification.type === "application" ? (
+                        <Zap className="h-6 w-6 text-green-400" />
+                      ) : (
+                        <AlertCircle className="h-6 w-6 text-yellow-400" />
+                      )}
                     </div>
-                    {!notification.read && (
-                      <Button
-                        onClick={() => markAsRead(notification._id)}
-                        variant="ghost"
-                        size="sm"
-                        className="text-gray-400 hover:text-white"
-                      >
-                        <CheckCircle className="h-4 w-4" />
-                      </Button>
-                    )}
+
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between mb-2">
+                        <h3 className="font-semibold text-lg">
+                          {notification.title}
+                        </h3>
+                        <span className="text-sm text-gray-400">
+                          {notification.timestamp}
+                        </span>
+                      </div>
+                      <p className="text-gray-300">{notification.message}</p>
+                    </div>
                   </div>
-                </motion.div>
+
+                  {/* Action Button */}
+                  {!notification.read && (
+                    <div className="mt-4 flex justify-end">
+                      <Button
+                        onClick={() => markAsRead(notification.id)}
+                        size="sm"
+                        className="bg-gray-800/50 hover:bg-gray-700/50 backdrop-blur-sm"
+                      >
+                        <CheckCircle className="h-4 w-4 mr-2" />
+                        Mark as Read
+                      </Button>
+                    </div>
+                  )}
+                </motion.li>
               ))}
-            </motion.div>
+            </motion.ul>
           )}
         </AnimatePresence>
       </div>

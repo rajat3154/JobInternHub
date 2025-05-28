@@ -5,14 +5,11 @@ import { Button } from './ui/button';
 import { Loader2, UserPlus, UserCheck } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
-import { useSocket } from '../context/SocketContext';
 
 const FollowButton = ({ userId, userType, onFollowSuccess, className, size = "sm", onFollowCountChange }) => {
     const [isFollowing, setIsFollowing] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const { user } = useAuth();
-    const socket = useSocket();
-    const [followerData, setFollowerData] = useState(null);
 
     useEffect(() => {
         const checkFollowStatus = async () => {
@@ -30,20 +27,7 @@ const FollowButton = ({ userId, userType, onFollowSuccess, className, size = "sm
             }
         };
 
-        const fetchFollowerData = async () => {
-            try {
-                const response = await axios.get('http://localhost:8000/api/auth/me', {
-                    withCredentials: true
-                });
-                setFollowerData(response.data);
-                console.log('Fetched follower data:', response.data);
-            } catch (error) {
-                console.error('Error fetching follower data:', error);
-            }
-        };
-
         checkFollowStatus();
-        fetchFollowerData();
     }, [user, userId]);
 
     const handleFollow = async (e) => {
@@ -63,13 +47,6 @@ const FollowButton = ({ userId, userType, onFollowSuccess, className, size = "sm
             const endpoint = isFollowing ? '/unfollow' : '/follow';
             const followerType = user.role.charAt(0).toUpperCase() + user.role.slice(1);
             const followingType = userType.charAt(0).toUpperCase() + userType.slice(1);
-
-            console.log('Sending follow request with data:', {
-                followerId: user._id,
-                followingId: userId,
-                followerType,
-                followingType
-            });
 
             const response = await axios.post(
                 `http://localhost:8000/api/v1/follow${endpoint}`,
@@ -94,26 +71,6 @@ const FollowButton = ({ userId, userType, onFollowSuccess, className, size = "sm
             // Call the callback to update follower count
             if (onFollowCountChange) {
                 onFollowCountChange(!isFollowing);
-            }
-
-            // Emit socket event for follow notification
-            if (!isFollowing && socket) {
-                console.log('Emitting follow event with data:', {
-                    followedUserId: userId,
-                    followerId: user._id,
-                    followerName: user.fullname || user.companyname
-                });
-                
-                socket.emit('follow', {
-                    followedUserId: userId,
-                    followerId: user._id,
-                    followerName: user.fullname || user.companyname
-                });
-
-                // Add listener for follow event acknowledgment
-                socket.once('followAcknowledged', (data) => {
-                    console.log('Follow event acknowledged:', data);
-                });
             }
             
             onFollowSuccess?.();
