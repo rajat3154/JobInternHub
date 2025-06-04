@@ -5,6 +5,7 @@ import { Recruiter } from "../models/recruiter.model.js";
 import getDataUri from "../utils/datauri.js";
 import cloudinary from "../utils/cloudinary.js";
 import RecruiterRequest from "../models/recruiterrequest.model.js";
+import { Job } from "../models/job.model.js";
 export const recregister = async (req, res) => {
       try {
             const { companyname, email, cinnumber, password, companyaddress, role } = req.body;
@@ -109,3 +110,44 @@ export const deleteRecruiter = async (req, res) => {
 };
 
 
+export const getRecruiterProfile = async (req, res) => {
+      try {
+            const recruiter = await Recruiter.findById(req.params.id)
+                  .select('-password -__v');
+
+            if (!recruiter) {
+                  return res.status(404).json({
+                        success: false,
+                        message: 'Recruiter not found'
+                  });
+            }
+
+            res.status(200).json({
+                  success: true,
+                  data: recruiter
+            });
+      } catch (error) {
+            res.status(500).json({
+                  success: false,
+                  message: error.message
+            });
+      }
+};
+
+export const getRecruiterJobs = async (req, res) => {
+      try {
+            const jobs = await Job.find({ created_by: req.params.id })
+                  .populate('applicants', 'fullname email profile')
+                  .sort({ createdAt: -1 });
+
+            res.status(200).json({
+                  success: true,
+                  jobs
+            });
+      } catch (error) {
+            res.status(500).json({
+                  success: false,
+                  message: error.message
+            });
+      }
+    };

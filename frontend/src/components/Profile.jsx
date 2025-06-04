@@ -4,7 +4,20 @@ import axios from "axios";
 import Navbar from "./shared/Navbar";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
-import { Contact, Mail, Pen, MessageSquare, Loader2, Briefcase, GraduationCap, Link as LinkIcon, Users, Calendar, MapPin, DollarSign } from "lucide-react";
+import {
+  Contact,
+  Mail,
+  Pen,
+  MessageSquare,
+  Loader2,
+  Briefcase,
+  GraduationCap,
+  Link as LinkIcon,
+  Users,
+  Calendar,
+  MapPin,
+  DollarSign,
+} from "lucide-react";
 import { Badge } from "./ui/badge";
 import AppliedJobTable from "./AppliedJobTable";
 import UpdateProfileDialog from "./UpdateProfileDialog";
@@ -13,17 +26,19 @@ import useGetAppliedJobs from "./hooks/useGetAppliedJobs";
 import FollowButton from "./FollowButton";
 import FollowList from "./FollowList";
 import UsersToFollow from "./UsersToFollow";
-import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "./ui/card";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+  CardDescription,
+} from "./ui/card";
 import { ScrollArea } from "./ui/scroll-area";
 import { Skeleton } from "./ui/skeleton";
 import { Separator } from "./ui/separator";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "./ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import {
   Table,
   TableBody,
@@ -53,20 +68,23 @@ const Profile = () => {
     const fetchUserProfile = async () => {
       try {
         setLoading(true);
-        const endpoint = userId && userType
-          ? `http://localhost:8000/api/v1/${userType.toLowerCase()}/${userId}`
-          : `http://localhost:8000/api/v1/${currentUser.role.toLowerCase()}/${currentUser._id}`;
+        const endpoint =
+          userId && userType
+            ? `http://localhost:8000/api/v1/${userType.toLowerCase()}/${userId}`
+            : `http://localhost:8000/api/v1/${currentUser.role.toLowerCase()}/${
+                currentUser._id
+              }`;
 
         const response = await axios.get(endpoint, {
           headers: {
             "Content-Type": "application/json",
           },
-          withCredentials: true
+          withCredentials: true,
         });
         setProfileUser(response.data.data);
       } catch (error) {
-        console.error('Error fetching user profile:', error);
-        toast.error('Failed to load profile');
+        console.error("Error fetching user profile:", error);
+        toast.error("Failed to load profile");
       } finally {
         setLoading(false);
       }
@@ -84,21 +102,27 @@ const Profile = () => {
         setFollowingLoading(true);
 
         const [followersRes, followingRes] = await Promise.all([
-          axios.get(`http://localhost:8000/api/v1/follow/followers/${profileUser._id}/${profileUser.role}`, {
-            headers: { "Content-Type": "application/json" },
-            withCredentials: true
-          }),
-          axios.get(`http://localhost:8000/api/v1/follow/following/${profileUser._id}/${profileUser.role}`, {
-            headers: { "Content-Type": "application/json" },
-            withCredentials: true
-          })
+          axios.get(
+            `http://localhost:8000/api/v1/follow/followers/${profileUser._id}/${profileUser.role}`,
+            {
+              headers: { "Content-Type": "application/json" },
+              withCredentials: true,
+            }
+          ),
+          axios.get(
+            `http://localhost:8000/api/v1/follow/following/${profileUser._id}/${profileUser.role}`,
+            {
+              headers: { "Content-Type": "application/json" },
+              withCredentials: true,
+            }
+          ),
         ]);
 
         setFollowers(followersRes.data.data);
         setFollowing(followingRes.data.data);
       } catch (error) {
-        console.error('Error fetching follow data:', error);
-        toast.error('Failed to load connections');
+        console.error("Error fetching follow data:", error);
+        toast.error("Failed to load connections");
       } finally {
         setFollowersLoading(false);
         setFollowingLoading(false);
@@ -111,27 +135,31 @@ const Profile = () => {
   // Add click outside handler
   useEffect(() => {
     const handleClickOutside = (event) => {
-      const followersButton = document.getElementById('followers-button');
-      const followingButton = document.getElementById('following-button');
-      const followersPopup = document.getElementById('followers-popup');
-      const followingPopup = document.getElementById('following-popup');
+      const followersButton = document.getElementById("followers-button");
+      const followingButton = document.getElementById("following-button");
+      const followersPopup = document.getElementById("followers-popup");
+      const followingPopup = document.getElementById("following-popup");
 
-      if (followersOpen && 
-          !followersButton?.contains(event.target) && 
-          !followersPopup?.contains(event.target)) {
+      if (
+        followersOpen &&
+        !followersButton?.contains(event.target) &&
+        !followersPopup?.contains(event.target)
+      ) {
         setFollowersOpen(false);
       }
 
-      if (followingOpen && 
-          !followingButton?.contains(event.target) && 
-          !followingPopup?.contains(event.target)) {
+      if (
+        followingOpen &&
+        !followingButton?.contains(event.target) &&
+        !followingPopup?.contains(event.target)
+      ) {
         setFollowingOpen(false);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [followersOpen, followingOpen]);
 
@@ -143,26 +171,34 @@ const Profile = () => {
       email: profileUser.email,
       role: profileUser.role.toLowerCase(),
       profilePhoto: profileUser.profile?.profilePhoto,
-      identifier: profileUser.role === "STUDENT" ? "Student" : profileUser.companyname || "Recruiter",
-      isOnline: false
+      identifier:
+        profileUser.role === "STUDENT"
+          ? "Student"
+          : profileUser.companyname || "Recruiter",
+      isOnline: false,
     };
-    localStorage.setItem('selectedUser', JSON.stringify(selectedUser));
-    navigate('/messages');
+    localStorage.setItem("selectedUser", JSON.stringify(selectedUser));
+    navigate("/messages");
   };
 
   const handleFollowCountChange = (isFollowing) => {
-    setFollowers(prevFollowers => {
+    setFollowers((prevFollowers) => {
       if (isFollowing) {
         // Add current user to followers list
-        return [...prevFollowers, {
-          _id: currentUser._id,
-          fullname: currentUser.fullname || currentUser.companyname,
-          role: currentUser.role,
-          profile: { profilePhoto: currentUser.profile?.profilePhoto }
-        }];
+        return [
+          ...prevFollowers,
+          {
+            _id: currentUser._id,
+            fullname: currentUser.fullname || currentUser.companyname,
+            role: currentUser.role,
+            profile: { profilePhoto: currentUser.profile?.profilePhoto },
+          },
+        ];
       } else {
         // Remove current user from followers list
-        return prevFollowers.filter(follower => follower._id !== currentUser._id);
+        return prevFollowers.filter(
+          (follower) => follower._id !== currentUser._id
+        );
       }
     });
   };
@@ -199,23 +235,28 @@ const Profile = () => {
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-3">
                     <div className="flex items-center gap-2">
                       <Avatar className="h-14 w-14 md:h-16 md:w-16 border-2 border-blue-500/30">
-              <AvatarImage
+                        <AvatarImage
                           src={profileUser?.profile?.profilePhoto}
                           className="object-cover"
-              />
+                        />
                         <AvatarFallback className="text-lg bg-gray-800 text-blue-400">
-                          {(profileUser?.fullname || profileUser?.companyname)?.charAt(0)}
+                          {(
+                            profileUser?.fullname || profileUser?.companyname
+                          )?.charAt(0)}
                         </AvatarFallback>
-            </Avatar>
-            <div>
+                      </Avatar>
+                      <div>
                         <h1 className="font-bold text-base md:text-lg text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">
                           {profileUser?.fullname || profileUser?.companyname}
-              </h1>
+                        </h1>
                         <p className="text-gray-400 text-xs">
-                          {profileUser?.profile?.headline || (profileUser?.role?.toUpperCase() === "STUDENT" ? "Student" : "Recruiter")}
+                          {profileUser?.profile?.headline ||
+                            (profileUser?.role?.toUpperCase() === "STUDENT"
+                              ? "Student"
+                              : "Recruiter")}
                         </p>
-            </div>
-          </div>
+                      </div>
+                    </div>
 
                     <div className="flex items-center gap-2 w-full sm:w-auto">
                       {!isOwnProfile && (
@@ -240,10 +281,10 @@ const Profile = () => {
                         </>
                       )}
                       {isOwnProfile && (
-          <Button
-            onClick={() => setOpen(true)}
-            variant="outline"
-            size="sm"
+                        <Button
+                          onClick={() => setOpen(true)}
+                          variant="outline"
+                          size="sm"
                           className="text-blue-400 border-blue-400/50 hover:bg-blue-400/10 hover:text-blue-400 text-xs"
                         >
                           <Pen className="h-3 w-3 mr-1" />
@@ -256,9 +297,9 @@ const Profile = () => {
                   {/* Connections Count */}
                   <div className="flex items-center gap-2 mb-3">
                     <div className="relative">
-                      <Button 
+                      <Button
                         id="followers-button"
-                        variant="ghost" 
+                        variant="ghost"
                         className="text-gray-400 hover:text-blue-400 hover:bg-blue-400/10"
                         onClick={() => {
                           setFollowersOpen(!followersOpen);
@@ -271,11 +312,16 @@ const Profile = () => {
                         ) : (
                           <span>{followers.length} Followers</span>
                         )}
-          </Button>
+                      </Button>
                       {followersOpen && (
-                        <div id="followers-popup" className="absolute top-full left-0 mt-2 w-80 bg-gray-900 border border-gray-800 rounded-md shadow-lg z-50">
+                        <div
+                          id="followers-popup"
+                          className="absolute top-full left-0 mt-2 w-80 bg-gray-900 border border-gray-800 rounded-md shadow-lg z-50"
+                        >
                           <div className="p-4">
-                            <h3 className="font-semibold text-blue-400 mb-2">Followers</h3>
+                            <h3 className="font-semibold text-blue-400 mb-2">
+                              Followers
+                            </h3>
                             <ScrollArea className="h-[300px] pr-4">
                               {followersLoading ? (
                                 <div className="flex justify-center items-center h-32">
@@ -288,19 +334,29 @@ const Profile = () => {
                                       key={follower._id}
                                       className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-800/50 cursor-pointer"
                                       onClick={() => {
-                                        navigate(`/profile/${follower.role.toLowerCase()}/${follower._id}`);
+                                        navigate(
+                                          `/profile/${follower.role.toLowerCase()}/${
+                                            follower._id
+                                          }`
+                                        );
                                         setFollowersOpen(false);
                                       }}
                                     >
                                       <Avatar className="h-8 w-8">
-                                        <AvatarImage src={follower.profile?.profilePhoto} />
+                                        <AvatarImage
+                                          src={follower.profile?.profilePhoto}
+                                        />
                                         <AvatarFallback className="bg-gray-800 text-blue-400">
-                                          {(follower.fullname || follower.companyname)?.charAt(0)}
+                                          {(
+                                            follower.fullname ||
+                                            follower.companyname
+                                          )?.charAt(0)}
                                         </AvatarFallback>
                                       </Avatar>
                                       <div className="flex-1 min-w-0">
                                         <p className="font-medium text-white truncate">
-                                          {follower.fullname || follower.companyname}
+                                          {follower.fullname ||
+                                            follower.companyname}
                                         </p>
                                         <p className="text-xs text-gray-400 truncate">
                                           {follower.role}
@@ -310,18 +366,20 @@ const Profile = () => {
                                   ))}
                                 </div>
                               ) : (
-                                <p className="text-gray-400 text-center py-4">No followers yet</p>
+                                <p className="text-gray-400 text-center py-4">
+                                  No followers yet
+                                </p>
                               )}
                             </ScrollArea>
                           </div>
                         </div>
                       )}
-        </div>
+                    </div>
 
                     <div className="relative">
-                      <Button 
+                      <Button
                         id="following-button"
-                        variant="ghost" 
+                        variant="ghost"
                         className="text-gray-400 hover:text-blue-400 hover:bg-blue-400/10"
                         onClick={() => {
                           setFollowingOpen(!followingOpen);
@@ -336,9 +394,14 @@ const Profile = () => {
                         )}
                       </Button>
                       {followingOpen && (
-                        <div id="following-popup" className="absolute top-full left-0 mt-2 w-80 bg-gray-900 border border-gray-800 rounded-md shadow-lg z-50">
+                        <div
+                          id="following-popup"
+                          className="absolute top-full left-0 mt-2 w-80 bg-gray-900 border border-gray-800 rounded-md shadow-lg z-50"
+                        >
                           <div className="p-4">
-                            <h3 className="font-semibold text-blue-400 mb-2">Following</h3>
+                            <h3 className="font-semibold text-blue-400 mb-2">
+                              Following
+                            </h3>
                             <ScrollArea className="h-[300px] pr-4">
                               {followingLoading ? (
                                 <div className="flex justify-center items-center h-32">
@@ -351,19 +414,29 @@ const Profile = () => {
                                       key={followed._id}
                                       className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-800/50 cursor-pointer"
                                       onClick={() => {
-                                        navigate(`/profile/${followed.role.toLowerCase()}/${followed._id}`);
+                                        navigate(
+                                          `/profile/${followed.role.toLowerCase()}/${
+                                            followed._id
+                                          }`
+                                        );
                                         setFollowingOpen(false);
                                       }}
                                     >
                                       <Avatar className="h-8 w-8">
-                                        <AvatarImage src={followed.profile?.profilePhoto} />
+                                        <AvatarImage
+                                          src={followed.profile?.profilePhoto}
+                                        />
                                         <AvatarFallback className="bg-gray-800 text-blue-400">
-                                          {(followed.fullname || followed.companyname)?.charAt(0)}
+                                          {(
+                                            followed.fullname ||
+                                            followed.companyname
+                                          )?.charAt(0)}
                                         </AvatarFallback>
                                       </Avatar>
                                       <div className="flex-1 min-w-0">
                                         <p className="font-medium text-white truncate">
-                                          {followed.fullname || followed.companyname}
+                                          {followed.fullname ||
+                                            followed.companyname}
                                         </p>
                                         <p className="text-xs text-gray-400 truncate">
                                           {followed.role}
@@ -373,18 +446,22 @@ const Profile = () => {
                                   ))}
                                 </div>
                               ) : (
-                                <p className="text-gray-400 text-center py-4">Not following anyone yet</p>
+                                <p className="text-gray-400 text-center py-4">
+                                  Not following anyone yet
+                                </p>
                               )}
                             </ScrollArea>
                           </div>
-          </div>
+                        </div>
                       )}
-          </div>
-        </div>
+                    </div>
+                  </div>
 
                   {/* Bio */}
                   <div className="mb-3">
-                    <h2 className="text-sm font-semibold text-blue-400 mb-1">About</h2>
+                    <h2 className="text-sm font-semibold text-blue-400 mb-1">
+                      About
+                    </h2>
                     <p className="text-gray-300 text-xs">
                       {profileUser?.profile?.bio || "No bio provided yet."}
                     </p>
@@ -400,7 +477,11 @@ const Profile = () => {
                     </div>
                     <div className="flex items-center gap-2 text-gray-300 text-xs">
                       <Contact className="text-blue-400 h-3 w-3" />
-                      <span>{profileUser?.phonenumber || profileUser?.phoneNumber || "Not provided"}</span>
+                      <span>
+                        {profileUser?.phonenumber ||
+                          profileUser?.phoneNumber ||
+                          "Not provided"}
+                      </span>
                     </div>
                     {profileUser?.profile?.website && (
                       <div className="flex items-center gap-2 text-gray-300 text-xs">
@@ -419,7 +500,7 @@ const Profile = () => {
 
                   <Separator className="bg-gray-800 my-3" />
 
-        {/* Skills */}
+                  {/* Skills */}
                   <div className="mb-3">
                     <h2 className="text-sm font-semibold text-blue-400 mb-2 flex items-center gap-1">
                       {isStudent ? (
@@ -441,33 +522,40 @@ const Profile = () => {
                             key={idx}
                             className="bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 text-xs px-2 py-0.5"
                           >
-                  {skill}
-                </Badge>
-              ))
-            ) : (
-                        <span className="text-gray-500 text-xs">No skills added</span>
-            )}
-          </div>
-        </div>
+                            {skill}
+                          </Badge>
+                        ))
+                      ) : (
+                        <span className="text-gray-500 text-xs">
+                          No skills added
+                        </span>
+                      )}
+                    </div>
+                  </div>
 
                   {/* Resume - Only show for students */}
                   {isStudent && (
                     <>
                       <Separator className="bg-gray-800 my-3" />
                       <div className="mb-3">
-                        <h2 className="text-sm font-semibold text-blue-400 mb-1">Resume</h2>
+                        <h2 className="text-sm font-semibold text-blue-400 mb-1">
+                          Resume
+                        </h2>
                         {profileUser?.profile?.resume ? (
                           <a
                             href={profileUser.profile.resume}
-              target="_blank"
-              rel="noopener noreferrer"
+                            target="_blank"
+                            rel="noopener noreferrer"
                             className="inline-flex items-center gap-1 text-blue-400 hover:underline text-xs"
-            >
+                          >
                             <LinkIcon className="h-3 w-3" />
-                            {profileUser.profile.resumeOriginalName || "View Resume"}
-            </a>
-          ) : (
-                          <span className="text-gray-500 text-xs">No resume uploaded</span>
+                            {profileUser.profile.resumeOriginalName ||
+                              "View Resume"}
+                          </a>
+                        ) : (
+                          <span className="text-gray-500 text-xs">
+                            No resume uploaded
+                          </span>
                         )}
                       </div>
                     </>
@@ -491,10 +579,18 @@ const Profile = () => {
                             <Table className="min-w-full bg-black text-white rounded-lg shadow-lg overflow-hidden">
                               <TableHeader className="bg-blue-600">
                                 <TableRow>
-                                  <TableHead className="text-white py-3 px-4">Date</TableHead>
-                                  <TableHead className="text-white py-3 px-4">Job Role</TableHead>
-                                  <TableHead className="text-white py-3 px-4">Company</TableHead>
-                                  <TableHead className="text-white py-3 px-4 text-right">Status</TableHead>
+                                  <TableHead className="text-white py-3 px-4">
+                                    Date
+                                  </TableHead>
+                                  <TableHead className="text-white py-3 px-4">
+                                    Job Role
+                                  </TableHead>
+                                  <TableHead className="text-white py-3 px-4">
+                                    Company
+                                  </TableHead>
+                                  <TableHead className="text-white py-3 px-4 text-right">
+                                    Status
+                                  </TableHead>
                                 </TableRow>
                               </TableHeader>
                               <TableBody>
@@ -534,14 +630,16 @@ const Profile = () => {
                                 variant="ghost"
                                 size="sm"
                                 className="w-full text-sm text-white hover:text-blue-400 hover:bg-gray-800/50 mt-2"
-                                onClick={() => navigate('/applied-jobs')}
+                                onClick={() => navigate("/applied-jobs")}
                               >
                                 View all {appliedJobs.length} applications
                               </Button>
                             )}
                           </div>
                         ) : (
-                          <p className="text-sm text-white">You haven't applied to any jobs yet.</p>
+                          <p className="text-sm text-white">
+                            You haven't applied to any jobs yet.
+                          </p>
                         )}
                       </div>
                     </>

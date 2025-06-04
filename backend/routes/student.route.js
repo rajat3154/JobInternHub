@@ -1,10 +1,11 @@
-import { deleteRecruiter, getAllRecruiters, recregister } from "../controllers/recruiter.controller.js";
+import { deleteRecruiter, getAllRecruiters, getRecruiterJobs, getRecruiterProfile, recregister } from "../controllers/recruiter.controller.js";
 import { deleteStudent, getAllStudents, isAdmin, login, logout, sregister, updateProfile } from "../controllers/student.controller.js";
 import express, { Router } from "express";
 import { singleUpload } from "../middlewares/multer.js";
 import isAuthenticated from "../middlewares/isAuthenticated.js";
 import isaAdmin from "../middlewares/isAuthenticated.js";
 import { Student } from "../models/student.model.js";
+import { Recruiter } from "../models/recruiter.model.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { ApiError } from "../utils/ApiError.js";
 
@@ -15,24 +16,43 @@ router.route("/login").post(login);
 router.route("/logout").get(logout);
 router.route("/check-auth").get(isAuthenticated, async (req, res) => {
     try {
-        const user = await Student.findById(req.user.id).select("-password");
-        if (!user) {
-            return res.status(401).json({
+        let userData;
+
+        if (req.user.role === "student") {
+            userData = await Student.findById(req.user.id).select("-password");
+            if (!userData) {
+                return res.status(401).json({
+                    success: false,
+                    message: "Student not found",
+                });
+            }
+        } else if (req.user.role === "recruiter") {
+            userData = await Recruiter.findById(req.user.id).select("-password");
+            if (!userData) {
+                return res.status(401).json({
+                    success: false,
+                    message: "Recruiter not found",
+                });
+            }
+        } else {
+            return res.status(400).json({
                 success: false,
-                message: "User not found"
+                message: "Invalid user role",
             });
         }
+
         return res.status(200).json({
             success: true,
-            data: user
+            data: userData,
         });
     } catch (error) {
         return res.status(500).json({
             success: false,
-            message: "Error checking authentication"
+            message: "Error checking authentication",
         });
     }
 });
+  
 
 // Student specific routes
 router.route("/student/signup").post(singleUpload, sregister);
@@ -74,5 +94,6 @@ router.get("/students", isAuthenticated, async (req, res) => {
         throw new ApiError(500, error.message || "Error fetching students");
     }
 });
-
+router.get('/recruiter/profile/:id', isAuthenticated, getRecruiterProfile);
+router.get('/recruiter/:id/jobs', isAuthenticated, getRecruiterJobs);
 export default router;
