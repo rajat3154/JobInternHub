@@ -6,6 +6,7 @@ import getDataUri from "../utils/datauri.js";
 import cloudinary from "../utils/cloudinary.js";
 import RecruiterRequest from "../models/recruiterrequest.model.js";
 import { Job } from "../models/job.model.js";
+import { ApiError } from "../utils/ApiError.js";
 export const recregister = async (req, res) => {
       try {
             const { companyname, email, cinnumber, password, companyaddress, role } = req.body;
@@ -110,6 +111,36 @@ export const deleteRecruiter = async (req, res) => {
 };
 
 
+export const getRecruiterJobs = async (req, res) => {
+      try {
+            // Validate the recruiter ID
+            if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+                  throw new ApiError(400, 'Invalid recruiter ID format');
+            }
+
+            // Find all jobs posted by this recruiter
+            const jobs = await Job.find({ created_by: req.params.id })
+               
+                  .sort({ createdAt: -1 }); // Newest first
+
+            if (!jobs || jobs.length === 0) {
+                  return res.status(200).json(
+                        new ApiResponse(200, { jobs: [] }, 'No jobs found for this recruiter')
+                  );
+            }
+
+            return res.status(200).json(
+                  new ApiResponse(200, { jobs }, 'Recruiter jobs fetched successfully')
+            );
+      } catch (error) {
+            console.error('Error fetching recruiter jobs:', error);
+            throw new ApiError(
+                  error.statusCode || 500,
+                  error.message || 'Failed to fetch recruiter jobs'
+            );
+      }
+    };
+
 export const getRecruiterProfile = async (req, res) => {
       try {
             const recruiter = await Recruiter.findById(req.params.id)
@@ -133,21 +164,3 @@ export const getRecruiterProfile = async (req, res) => {
             });
       }
 };
-
-export const getRecruiterJobs = async (req, res) => {
-      try {
-            const jobs = await Job.find({ created_by: req.params.id })
-                  .populate('applicants', 'fullname email profile')
-                  .sort({ createdAt: -1 });
-
-            res.status(200).json({
-                  success: true,
-                  jobs
-            });
-      } catch (error) {
-            res.status(500).json({
-                  success: false,
-                  message: error.message
-            });
-      }
-    };
