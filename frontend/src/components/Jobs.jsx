@@ -17,6 +17,43 @@ const Jobs = () => {
 
   const fetchJobs = async () => {
     try {
+      const response = await fetch(
+        "http://localhost:8000/api/v1/job/recruiter",
+        {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+        }
+      );
+
+      const data = await response.json();
+      console.log("Fetched recruiter jobs data:", data);
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to fetch jobs");
+      }
+
+      if (data.success && Array.isArray(data.jobs)) {
+        dispatch(setAllJobs(data.jobs));
+      } else {
+        console.error("Invalid job data format or empty jobs array");
+      }
+    } catch (error) {
+      console.error("Error fetching jobs:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (user?.role === "recruiter") {
+      fetchJobs();
+    } else {
+      // For students or other roles, fetch all jobs (or implement different logic)
+      fetchAllJobs();
+    }
+  }, [dispatch, user]);
+
+  const fetchAllJobs = async () => {
+    try {
       const response = await fetch("http://localhost:8000/api/v1/job/get", {
         method: "GET",
         headers: {
@@ -27,23 +64,13 @@ const Jobs = () => {
 
       const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to fetch jobs");
-      }
-
       if (data.success && Array.isArray(data.jobs)) {
         dispatch(setAllJobs(data.jobs));
-      } else {
-        console.error("Invalid job data format");
       }
     } catch (error) {
-      console.error("Error fetching jobs:", error);
+      console.error("Error fetching all jobs:", error);
     }
   };
-
-  useEffect(() => {
-    fetchJobs();
-  }, [dispatch]);
 
   useEffect(() => {
     if (searchedQuery) {
@@ -71,10 +98,13 @@ const Jobs = () => {
 
       <div className="container mx-auto text-center py-10">
         <h1 className="text-4xl font-bold mb-3 text-blue-500">
-          Browse <span className="text-white text-4xl">Job </span> Listings
+          {user?.role === "recruiter" ? "Your Job " : "Browse Job "}
+          <span className="text-white text-4xl">Listings</span>
         </h1>
         <p className="text-lg text-gray-300">
-          Find your dream job in just a few clicks!
+          {user?.role === "recruiter"
+            ? "Manage your job postings"
+            : "Find your dream job in just a few clicks!"}
         </p>
 
         {user?.role === "recruiter" && (
@@ -97,18 +127,26 @@ const Jobs = () => {
       )}
 
       <div className="container mx-auto flex gap-6 px-4 flex-1">
-        <div className="w-1/5 bg-black p-6 rounded-lg shadow-lg border border-gray-700">
-          <h2 className="text-lg font-semibold text-blue-400 mb-4">
-            Filter Jobs
-          </h2>
-          <FilterCard />
-        </div>
+        {user?.role === "student" && (
+          <div className="w-1/5 bg-black p-6 rounded-lg shadow-lg border border-gray-700">
+            <h2 className="text-lg font-semibold text-blue-400 mb-4">
+              Filter Jobs
+            </h2>
+            <FilterCard />
+          </div>
+        )}
 
-        <div className="flex-1 overflow-y-auto pb-5">
+        <div
+          className={`${
+            user?.role === "student" ? "flex-1" : "w-full"
+          } overflow-y-auto pb-5`}
+        >
           {filterJobs.length <= 0 ? (
             <div className="flex items-center justify-center h-full">
               <p className="text-gray-400 text-xl font-medium">
-                No jobs found. Try adjusting your filters.
+                {user?.role === "recruiter"
+                  ? "You haven't posted any jobs yet."
+                  : "No jobs found. Try adjusting your filters."}
               </p>
             </div>
           ) : (
@@ -132,19 +170,25 @@ const Jobs = () => {
                     <p className="text-sm text-gray-400">
                       {new Date(job.createdAt).toDateString()}
                     </p>
+                    {user?.role === "recruiter" && (
+                      <span className="text-xs bg-blue-500 text-white px-2 py-1 rounded">
+                        {job.applicants?.length || 0} applicants
+                      </span>
+                    )}
                   </div>
 
                   <div className="flex items-center gap-3 mb-6">
                     <img
                       src={
-                        job.company?.logo || "https://via.placeholder.com/50"
+                        job.created_by?.profile?.profilePhoto ||
+                        "https://via.placeholder.com/50"
                       }
                       alt="Company Logo"
                       className="w-12 h-12 rounded-full"
                     />
                     <div>
                       <h1 className="font-semibold text-lg">
-                        {job.company?.name || "Samsung"}
+                        {job.company || "Your Company"}
                       </h1>
                       <p className="text-sm text-gray-400">{job.location}</p>
                     </div>
@@ -152,7 +196,9 @@ const Jobs = () => {
 
                   <div className="mb-4">
                     <h1 className="font-bold text-xl mb-3">{job.title}</h1>
-                    <p className="text-sm text-gray-300">{job.description}</p>
+                    <p className="text-sm text-gray-300 line-clamp-3">
+                      {job.description}
+                    </p>
                   </div>
 
                   <div className="flex items-center gap-3 mb-3">
@@ -179,11 +225,13 @@ const Jobs = () => {
                       variant="outline"
                       className="px-2 py-1 bg-blue-500 border-blue-500 text-white text-sm font-bold rounded-md hover:bg-blue-600 cursor-pointer"
                     >
-                      Details
+                      {user?.role === "recruiter" ? "View Details" : "Details"}
                     </Button>
-                    <Button className="px-2 py-1 bg-[#7209b7] text-white text-sm font-bold rounded-md hover:bg-purple-900 cursor-pointer">
-                      Save for later
-                    </Button>
+                    {user?.role === "student" && (
+                      <Button className="px-2 py-1 bg-[#7209b7] text-white text-sm font-bold rounded-md hover:bg-purple-900 cursor-pointer">
+                        Save for later
+                      </Button>
+                    )}
                   </div>
                 </div>
               ))}
@@ -194,4 +242,5 @@ const Jobs = () => {
     </div>
   );
 };
+
 export default Jobs;

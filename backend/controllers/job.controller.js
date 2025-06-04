@@ -112,26 +112,43 @@ export const getJobById = async (req, res) => {
 }
 
 
-export const getRecuiterJobs = async (req, res) => {
+export const getRecruiterJobs = async (req, res) => {
       try {
+            console.log("Authenticated user ID:", req.user.id);  // <-- Add this log
 
-            const jobs = await Job.find({ created_by: req.id }).sort({ createdAt: -1 });
-
-            if (!jobs) {
-                  return res.status(404).json({
-                        message: "No jobs found",
-                        success: false
+            const jobs = await Job.find({ created_by: req.user.id })
+                  .populate({
+                        path: "applications",
+                        select: "student status appliedAt",
                   })
-            }
-            return res.status(200).json({
-                  jobs,
-                  success: true
-            })
+                  .populate({
+                        path: "created_by",
+                        select: "companyname profile.profilePhoto",
+                  })
+                  .sort({ createdAt: -1 });
 
+            if (!jobs.length) {
+                  return res.status(200).json({
+                        message: "You haven't posted any jobs yet",
+                        jobs: [],
+                        success: true,
+                  });
+            }
+
+            return res.status(200).json({
+                  message: "Your job postings",
+                  jobs,
+                  success: true,
+                  count: jobs.length,
+            });
       } catch (error) {
-            console.log(error);
+            console.error("Recruiter jobs fetch error:", error);
+            return res.status(500).json({
+                  message: "Failed to fetch your jobs",
+                  success: false,
+            });
       }
-}
+};
 // Get latest jobs
 export const getLatestJobs = async (req, res) => {
       try {
