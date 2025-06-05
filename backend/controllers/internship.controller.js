@@ -87,6 +87,7 @@ export const getAllInternships = async (req, res) => {
 export const getInternshipById = async (req, res) => {
       try {
             const internshipId = req.params.id;
+            console.log("Received internshipId:", internshipId); 
             const internship = await Internship.findById(internshipId).populate({
                   path: "applications"
             });

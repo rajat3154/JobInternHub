@@ -1,16 +1,27 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
+import { toast } from "sonner";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+import { MoreHorizontal } from "lucide-react";
+
+const shortlistingStatus = ["Accepted", "Rejected"];
 
 const InternshipDetails = () => {
   const { id } = useParams();
   const [internship, setInternship] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [updating, setUpdating] = useState(false);
 
   // Replace with your real API endpoint
   const fetchInternshipDetails = async () => {
     try {
-      const { data } = await axios.get(`/api/v1/internships/get/${id}`);
+      const { data } = await axios.get(
+        `http://localhost:8000/api/v1/internship/get/${id}`,
+        { withCredentials: true }
+      );
+
+      console.log("Fetched internship data:", data);
       setInternship(data.internship);
     } catch (error) {
       console.error("Failed to fetch internship details:", error);
@@ -22,6 +33,28 @@ const InternshipDetails = () => {
   useEffect(() => {
     fetchInternshipDetails();
   }, [id]);
+
+  const handleStatusUpdate = async (status, applicantId) => {
+    try {
+      setUpdating(true);
+      const res = await axios.post(
+        `http://localhost:8000/api/v1/internship/applicants/${applicantId}/status`,
+        { status },
+        { withCredentials: true }
+      );
+      if (res.data.success) {
+        toast.success(res.data.message || "Status updated successfully");
+        fetchInternshipDetails();
+      } else {
+        toast.error("Status update failed");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to update status");
+    } finally {
+      setUpdating(false);
+    }
+  };
 
   if (loading) {
     return <div className="text-white text-center mt-20">Loading...</div>;
@@ -132,11 +165,15 @@ const InternshipDetails = () => {
                     <th className="pb-3">Status</th>
                     <th className="pb-3">Resume</th>
                     <th className="pb-3">Applied Date</th>
+                    <th className="pb-3">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {internship.applicants.map((applicant, index) => (
-                    <tr key={index} className="border-b border-gray-600">
+                    <tr
+                      key={applicant._id || index}
+                      className="border-b border-gray-600"
+                    >
                       <td className="py-4">{applicant.name}</td>
                       <td>{applicant.email}</td>
                       <td>
@@ -145,16 +182,40 @@ const InternshipDetails = () => {
                         </span>
                       </td>
                       <td>
-                        <a
-                          href={applicant.resumeUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-400 hover:underline"
-                        >
-                          View PDF
-                        </a>
+                        {applicant.resumeUrl ? (
+                          <a
+                            href={applicant.resumeUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-400 hover:underline"
+                          >
+                            View PDF
+                          </a>
+                        ) : (
+                          "No Resume"
+                        )}
                       </td>
                       <td>{new Date(applicant.appliedDate).toDateString()}</td>
+                      <td className="relative">
+                        <Popover>
+                          <PopoverTrigger>
+                            <MoreHorizontal className="cursor-pointer text-gray-400 hover:text-white" />
+                          </PopoverTrigger>
+                          <PopoverContent className="bg-black text-white rounded-lg shadow-lg p-2">
+                            {shortlistingStatus.map((status, i) => (
+                              <div
+                                key={i}
+                                onClick={() =>
+                                  handleStatusUpdate(status, applicant._id)
+                                }
+                                className="px-2 py-1 rounded cursor-pointer hover:text-white hover:bg-blue-500"
+                              >
+                                {status}
+                              </div>
+                            ))}
+                          </PopoverContent>
+                        </Popover>
+                      </td>
                     </tr>
                   ))}
                 </tbody>

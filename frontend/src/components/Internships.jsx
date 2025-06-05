@@ -91,7 +91,6 @@ const Internships = () => {
           <PostInternship
             onClose={() => setShowPostInternship(false)}
             onSuccess={() => {
-              fetchInternships();
               fetchRecruiterInternships();
               setShowPostInternship(false);
             }}
@@ -116,31 +115,33 @@ const Internships = () => {
         </div>
       )}
 
-      {/* All Internships */}
-      <div className="container mx-auto px-4 pb-10">
-        <h2 className="text-2xl font-semibold text-blue-400 mb-4">
-          All Internships
-        </h2>
-        {allInternships?.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-            {allInternships.map((internship) => (
-              <LatestInternshipCards
-                key={internship._id}
-                internship={internship}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="flex flex-col items-center justify-center py-10">
-            <p className="text-gray-400 text-xl font-medium mb-2">
-              No internships found.
-            </p>
-            <p className="text-sm text-gray-500">
-              Try posting a new one or check your server data.
-            </p>
-          </div>
-        )}
-      </div>
+      {/* All Internships - show only if role is student */}
+      {user?.role === "student" && (
+        <div className="container mx-auto px-4 pb-10">
+          <h2 className="text-2xl font-semibold text-blue-400 mb-4">
+            All Internships
+          </h2>
+          {allInternships?.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+              {allInternships.map((internship) => (
+                <LatestInternshipCards
+                  key={internship._id}
+                  internship={internship}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-10">
+              <p className="text-gray-400 text-xl font-medium mb-2">
+                No internships found.
+              </p>
+              <p className="text-sm text-gray-500">
+                Try posting a new one or check your server data.
+              </p>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };

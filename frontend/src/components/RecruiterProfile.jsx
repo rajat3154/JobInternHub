@@ -6,7 +6,6 @@ import { Button } from "./ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Mail, Briefcase, Link as LinkIcon, Pen } from "lucide-react";
 import { Skeleton } from "./ui/skeleton";
-import { Card, CardContent } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { toast } from "sonner";
@@ -32,9 +31,7 @@ const RecruiterProfile = () => {
           `http://localhost:8000/api/v1/recruiter/profile/${currentUser._id}`,
           {
             withCredentials: true,
-            headers: {
-              "Content-Type": "application/json",
-            },
+            headers: { "Content-Type": "application/json" },
           }
         );
         setProfileData(response.data.data);
@@ -57,17 +54,10 @@ const RecruiterProfile = () => {
             credentials: "include",
           }
         );
-
         const data = await response.json();
-        console.log("Fetched recruiter jobs data:", data);
-
-        if (!response.ok) {
-          throw new Error(data.message || "Failed to fetch jobs");
-        }
-
         if (data.success && Array.isArray(data.jobs)) {
-          setJobs(data.jobs); // ✅ Set local jobs state
-          dispatch(setAllJobs(data.jobs)); // Optional: set to redux store
+          setJobs(data.jobs);
+          dispatch(setAllJobs(data.jobs));
         }
       } catch (error) {
         console.error("Error fetching jobs:", error);
@@ -76,12 +66,34 @@ const RecruiterProfile = () => {
       }
     };
 
+    const fetchRecruiterInternships = async () => {
+      try {
+        const response = await fetch(
+          "http://localhost:8000/api/v1/internship/recruiter",
+          {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+          }
+        );
+        const data = await response.json();
+        if (data.success && Array.isArray(data.internships)) {
+          setInternships(data.internships);
+        } else {
+          setInternships([]);
+        }
+      } catch (error) {
+        console.error("Error fetching internships:", error);
+      }
+    };
+
     fetchProfileData();
     fetchPostedJobs();
-  }, [currentUser._id]);
+    fetchRecruiterInternships();
+  }, [currentUser._id, dispatch]);
 
-  const renderJobCards = (posts, type = "job") => {
-    if (jobsLoading) {
+  const renderCards = (posts, type = "job") => {
+    if (jobsLoading && type === "job") {
       return (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {[...Array(3)].map((_, i) => (
@@ -99,7 +111,9 @@ const RecruiterProfile = () => {
             yet.
           </p>
           <Button
-            onClick={() => navigate("/post-job")}
+            onClick={() =>
+              navigate(type === "job" ? "/post-job" : "/post-internship")
+            }
             className="mt-4 bg-blue-600 hover:bg-blue-700"
           >
             Post a {type === "job" ? "Job" : "Internship"}
@@ -117,7 +131,13 @@ const RecruiterProfile = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
             className="relative p-6 rounded-lg shadow-lg bg-gray-900 text-white border border-blue-500/30 hover:bg-gray-800 cursor-pointer transition duration-300"
-            onClick={() => navigate(`/job/details/${post._id}`)}
+            onClick={() =>
+              navigate(
+                type === "job"
+                  ? `/job/details/${post._id}`
+                  : `/internship/details/${post._id}`
+              )
+            }
           >
             <div className="absolute top-3 right-4">
               <Badge className="bg-blue-600">
@@ -153,23 +173,28 @@ const RecruiterProfile = () => {
               </p>
             </div>
 
-            <div className="flex items-center gap-3 mb-3">
-              <Badge className="bg-blue-400 text-black">
-                {post.position} Positions
-              </Badge>
-              <Badge className="bg-red-600 text-white">{post.jobType}</Badge>
-              <Badge className="bg-yellow-400 text-black">
-                {type === "job"
-                  ? `${post.salary} LPA`
-                  : post.stipend || "Unpaid"}
-              </Badge>
+            <div className="flex flex-wrap gap-3 mb-3">
+              {post.position && (
+                <Badge className="bg-blue-400 text-black">
+                  {post.position} Position{post.position > 1 ? "s" : ""}
+                </Badge>
+              )}
+              {post.jobType && (
+                <Badge className="bg-red-600 text-white">{post.jobType}</Badge>
+              )}
+              {post.salary && (
+                <Badge className="bg-yellow-400 text-black">
+                  {type === "job"
+                    ? `${post.salary} LPA`
+                    : `${post.salary} /month`}
+                </Badge>
+              )}
+              {type === "internship" && post.duration && (
+                <Badge className="bg-green-500 text-white">
+                  {post.duration} months
+                </Badge>
+              )}
             </div>
-
-            {type === "internship" && post.duration && (
-              <Badge className="bg-purple-500 text-white mb-3">
-                Duration: {post.duration}
-              </Badge>
-            )}
 
             <div className="flex items-center gap-2 mt-4">
               <Button
@@ -298,11 +323,11 @@ const RecruiterProfile = () => {
             </TabsList>
 
             <TabsContent value="jobs" className="mt-6">
-              {renderJobCards(jobs, "job")}
+              {renderCards(jobs, "job")}
             </TabsContent>
 
             <TabsContent value="internships" className="mt-6">
-              {renderJobCards(internships, "internship")}
+              {renderCards(internships, "internship")}
             </TabsContent>
           </Tabs>
         </motion.div>
