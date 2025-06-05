@@ -34,6 +34,21 @@ router.route("/check-auth").get(isAuthenticated, async (req, res) => {
                     message: "Recruiter not found",
                 });
             }
+        } else if (req.user.role === "admin") {
+            // Hardcoded admin user
+            if (req.user.userId !== "admin_default_id") {
+                return res.status(401).json({
+                    success: false,
+                    message: "Invalid admin token",
+                });
+            }
+
+            userData = {
+                _id: "admin_default_id",
+                email: "admin@gmail.com",
+                fullname: "Admin",
+                role: "admin",
+            };
         } else {
             return res.status(400).json({
                 success: false,
@@ -46,12 +61,14 @@ router.route("/check-auth").get(isAuthenticated, async (req, res) => {
             data: userData,
         });
     } catch (error) {
+        console.error("Check Auth Error:", error);
         return res.status(500).json({
             success: false,
             message: "Error checking authentication",
         });
     }
 });
+
   
 
 // Student specific routes

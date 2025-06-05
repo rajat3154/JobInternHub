@@ -10,6 +10,16 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
+        const token = document.cookie
+          .split("; ")
+          .find((row) => row.startsWith("token="));
+
+        // ✅ If no token, or user is already admin (from login), skip
+        if (!token || user?.role === "admin") {
+          setLoading(false);
+          return;
+        }
+
         const response = await axios.get(
           "http://localhost:8000/api/v1/check-auth",
           {
@@ -19,7 +29,7 @@ export const AuthProvider = ({ children }) => {
             },
           }
         );
-        console.log("Auth check response:", response.data);
+
         if (response.data.success) {
           setUser(response.data.data);
         }
@@ -31,13 +41,13 @@ export const AuthProvider = ({ children }) => {
     };
 
     checkAuth();
-  }, []);
+  }, [user?.role]); // ⬅ make sure useEffect triggers only once and respects user.role
 
-  const login = async (email, password) => {
+  const login = async (email, password, role) => {
     try {
       const response = await axios.post(
         "http://localhost:8000/api/v1/login",
-        { email, password },
+        { email, password, role },
         {
           withCredentials: true,
           headers: {
