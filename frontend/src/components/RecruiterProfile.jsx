@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Button } from "./ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Mail, Briefcase, Link as LinkIcon, Pen } from "lucide-react";
-import { Card, CardContent } from "./ui/card";
-import { Separator } from "./ui/separator";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import { Badge } from "./ui/badge";
-import Navbar from "./shared/Navbar";
 import { Skeleton } from "./ui/skeleton";
+import { Card, CardContent } from "./ui/card";
+import { Badge } from "./ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
+import { setAllJobs } from "@/redux/jobSlice";
+import Navbar from "./shared/Navbar";
 
 const RecruiterProfile = () => {
   const [profileData, setProfileData] = useState(null);
@@ -22,6 +22,7 @@ const RecruiterProfile = () => {
   const [jobsLoading, setJobsLoading] = useState(true);
   const { user: currentUser } = useSelector((store) => store.auth);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const fetchProfileData = async () => {
@@ -48,18 +49,28 @@ const RecruiterProfile = () => {
     const fetchPostedJobs = async () => {
       try {
         setJobsLoading(true);
-        const response = await axios.get(
-          `http://localhost:8000/api/v1/recruiter/${currentUser._id}/jobs`,
-          { withCredentials: true }
+        const response = await fetch(
+          "http://localhost:8000/api/v1/job/recruiter",
+          {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+          }
         );
 
-        // Separate jobs and internships
-        const allPosts = response.data.jobs || [];
-        setJobs(allPosts.filter((job) => job.jobType !== "Internship"));
-        setInternships(allPosts.filter((job) => job.jobType === "Internship"));
+        const data = await response.json();
+        console.log("Fetched recruiter jobs data:", data);
+
+        if (!response.ok) {
+          throw new Error(data.message || "Failed to fetch jobs");
+        }
+
+        if (data.success && Array.isArray(data.jobs)) {
+          setJobs(data.jobs); // ✅ Set local jobs state
+          dispatch(setAllJobs(data.jobs)); // Optional: set to redux store
+        }
       } catch (error) {
-        toast.error("Failed to load posted jobs");
-        console.error("Jobs fetch error:", error);
+        console.error("Error fetching jobs:", error);
       } finally {
         setJobsLoading(false);
       }
@@ -108,10 +119,9 @@ const RecruiterProfile = () => {
             className="relative p-6 rounded-lg shadow-lg bg-gray-900 text-white border border-blue-500/30 hover:bg-gray-800 cursor-pointer transition duration-300"
             onClick={() => navigate(`/job/details/${post._id}`)}
           >
-            {/* Applicants badge */}
             <div className="absolute top-3 right-4">
               <Badge className="bg-blue-600">
-                {post.applicants?.length || 0} applicants
+                {post.applications?.length || 0} applicants
               </Badge>
             </div>
 
@@ -151,7 +161,7 @@ const RecruiterProfile = () => {
               <Badge className="bg-yellow-400 text-black">
                 {type === "job"
                   ? `${post.salary} LPA`
-                  : `${post.stipend || "Unpaid"}`}
+                  : post.stipend || "Unpaid"}
               </Badge>
             </div>
 
@@ -189,8 +199,6 @@ const RecruiterProfile = () => {
   return (
     <div className="min-h-screen bg-black text-white">
       <Navbar />
-
-      {/* Profile Header */}
       <div className="max-w-7xl mx-auto p-4">
         <div className="bg-gray-900 rounded-lg p-6 shadow-lg mb-8">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-6">
@@ -221,7 +229,6 @@ const RecruiterProfile = () => {
             </Button>
           </div>
 
-          {/* Company Details */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <h2 className="text-lg font-semibold text-blue-400 mb-2">
@@ -232,7 +239,6 @@ const RecruiterProfile = () => {
                   "No company description provided."}
               </p>
             </div>
-
             <div>
               <h2 className="text-lg font-semibold text-blue-400 mb-2">
                 Contact Information
@@ -270,7 +276,6 @@ const RecruiterProfile = () => {
           </div>
         </div>
 
-        {/* Jobs and Internships Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
